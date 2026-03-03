@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>БАНК TAP</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:#000;
+      color:#0f0;
+      font-family:'Press Start 2P', monospace;
+      font-size:10px;
+      overflow:hidden;
+      touch-action:manipulation;
+      image-rendering:pixelated;
+      height:100vh;
+      display:flex;
+      flex-direction:column;
+    }
+    #header {
+      padding:8px 10px;
+      display:flex;
+      justify-content:space-between;
+      font-size:9.5px;
+      background:rgba(0,0,0,0.6);
+      border-bottom:2px solid #0f0;
+    }
+    .stat-left, .stat-right { display:flex; flex-direction:column; gap:4px; }
+    .stat-box {
+      background:rgba(0,255,0,0.07);
+      border:1.5px solid #0f0;
+      padding:4px 7px;
+      white-space:nowrap;
+    }
+    canvas {
+      width:100%;
+      max-width:380px;
+      height:auto;
+      border:6px solid #0f0;
+      background:#000;
+      margin:8px auto 4px;
+      display:block;
+    }
+    .level-progress-container {
+      padding:0 10px;
+      margin:4px 0 8px;
+      text-align:center;
+      font-size:9px;
+    }
+    .level-progress-bar {
+      height:7px;
+      background:#111;
+      border:1px solid #0f0;
+      margin-top:3px;
+      overflow:hidden;
+    }
+    .level-progress-fill {
+      height:100%;
+      background:#0f0;
+      width:0%;
+      transition:width 0.35s ease;
+    }
+    .menu {
+      padding:8px 10px;
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      border-top:2px solid #0f0;
+      background:rgba(0,0,0,0.6);
+    }
+    button {
+      background:#000;
+      color:#0f0;
+      border:2.5px solid #0f0;
+      padding:10px 22px;
+      font-size:11px;
+      cursor:pointer;
+      touch-action:manipulation;
+    }
+    button:active {
+      background:#0a0a0a;
+      transform:scale(0.96);
+    }
+    .modal {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,0.92);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:100;
+      padding:12px;
+    }
+    .modal-content {
+      width:100%;
+      max-width:360px;
+      background:#000;
+      border:3px solid #0f0;
+      padding:16px;
+      text-align:center;
+      font-size:10px;
+    }
+    .fz {
+      font-size:32px;
+      color:#f00;
+      text-shadow:0 0 12px #f00;
+      margin-bottom:12px;
+    }
+    .float-text {
+      position:absolute;
+      color:#ff0;
+      font-size:18px;
+      pointer-events:none;
+      animation:floatUp 1.2s forwards;
+    }
+    @keyframes floatUp {
+      to { transform:translateY(-60px); opacity:0; }
+    }
+    #levelUpOverlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none;
+      align-items:center; justify-content:center; z-index:200; flex-direction:column;
+      font-family:'Press Start 2P', monospace; color:#0f0; text-align:center;
+    }
+    .level-text { font-size:48px; text-shadow:0 0 20px #0f0; animation:pulse 0.8s infinite alternate; }
+    .particles { position:absolute; inset:0; pointer-events:none; }
+    @keyframes pulse { from { transform:scale(0.8); } to { transform:scale(1.1); } }
+  </style>
+</head>
+<body>
+
+  <div id="header">
+    <div class="stat-left">
+      <div class="stat-box">LVL <span id="level">1</span>/15</div>
+      <div class="stat-box">₽ <span id="coins">0</span></div>
+      <div class="stat-box"><span id="profit">0</span> ₽/ч</div>
+    </div>
+    <div class="stat-right">
+      <div class="stat-box">ЭНЕРГИЯ: <span id="energy">800</span>/<span id="maxEnergy">800</span> <span id="energyRecover"></span></div>
+      <div class="stat-box">ДРОП: <span id="dropCards">0</span>/5</div>
+    </div>
+  </div>
+
+  <canvas id="game" width="380" height="460"></canvas>
+
+  <div class="level-progress-container">
+    ДО СЛЕД. УРОВНЯ: <span id="clicksCurrent">0</span> / <span id="clicksNeeded">—</span>
+    <div class="level-progress-bar">
+      <div id="levelProgressFill" class="level-progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="menu">
+    <button onclick="showMenu('shop')">МАГАЗИН</button>
+    <button onclick="showMenu('daily')">ДЕНЬ</button>
+  </div>
+
+  <div id="modal" class="modal">
+    <div id="modalContent" class="modal-content"></div>
+  </div>
+
+  <div id="levelUpOverlay">
+    <div class="level-text">LEVEL UP!</div>
+    <div class="level-text" style="font-size:28px;margin-top:16px;color:#ff0;">LVL <span id="newLevel">2</span></div>
+    <div class="particles" id="particles"></div>
+  </div>
+
+  <audio id="bgMusic" loop preload="auto">
+    <source src="https://cdn.glitch.global/0a5b5d8e-5f5a-4d8e-9b0e-1f5e0d5e5e5e/lofi-8bit-atmosphere.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="clickSound" preload="auto">
+    <source src="https://cdn.glitch.global/0a5b5d8e-5f5a-4d8e-9b0e-1f5e0d5e5e5e/soft-click-short.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    // ────────────────────────────────────────────────
+    // Встроенный мини-сервер (только для локального теста)
+    // ────────────────────────────────────────────────
+    const isLocalTest = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+    let player = {
+      coins: 0,
+      energy: 800,
+      maxEnergy: 800,
+      level: 1,
+      accumulatedClicks: 0,
+      dropCards: 0,
+      tapLevel: 0,
+      p2pLevel: 0,
+      streak: 1,
+      dailyClaimed: null,
+      lastOnline: Date.now()
+    };
+
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    let musicStarted = false;
+    let lastTapTime = 0;
+    let tapCountThisSecond = 0;
+    let lastTapSecond = Date.now();
+
+    // ────────────────────────────────────────────────
+    // Функции отрисовки и логики (почти без изменений)
+    // ────────────────────────────────────────────────
+    function drawCard() {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const banks = ["Ozon Bank","Т-Банк","Совкомбанк","Альфа-Банк","ВТБ","Газпромбанк","Россельхозбанк","МКБ","ПСБ","Райффайзенбанк","Росбанк","Открытие","Почта Банк","Русский Стандарт","Сбербанк"];
+      const hue = (player.level * 24) % 360;
+      ctx.fillStyle = `hsl(${hue}, 85%, 32%)`;
+      ctx.fillRect(40, 90, 300, 180);
+      ctx.strokeStyle = "#fff"; ctx.lineWidth = 10;
+      ctx.strokeRect(40, 90, 300, 180);
+      ctx.fillStyle = "rgba(255,255,255,0.2)";
+      ctx.fillRect(48, 98, 284, 35);
+      ctx.fillStyle = "#ffd700";
+      ctx.fillRect(65, 120, 65, 45);
+      ctx.fillStyle = "#fff";
+      ctx.font = "bold 20px 'Press Start 2P'";
+      ctx.textAlign = "center";
+      ctx.shadowBlur = 8; ctx.shadowColor = "#ff0";
+      ctx.fillText(banks[player.level-1] || "??? Bank", 190, 175);
+      ctx.shadowBlur = 0;
+      ctx.font = "14px monospace";
+      ctx.fillText("•••• •••• •••• " + (1000 + player.level*111), 190, 210);
+      ctx.fillStyle = "#0f0";
+      ctx.font = "12px 'Press Start 2P'";
+      ctx.fillText("МИР", 260, 240);
+      ctx.fillStyle = "#0f0";
+      ctx.font = "bold 16px 'Press Start 2P'";
+      ctx.fillText(`LVL ${player.level}`, 190, 60);
+    }
+
+    function createFloatingText(amount, x, y, color = "#ff0") {
+      const el = document.createElement('div');
+      el.className = 'float-text';
+      el.textContent = `+${amount.toLocaleString()}`;
+      el.style.left = (x + canvas.offsetLeft + 15) + 'px';
+      el.style.top = (y + canvas.offsetTop - 25) + 'px';
+      el.style.color = color;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 1200);
+    }
+
+    function getTapIncome() {
+      return Math.floor((player.level * 4.5 + player.tapLevel * player.level * 1.6) * 1);
+    }
+
+    function getPassivePerHour() {
+      let base = 160 + player.dropCards * 85;
+      base += player.tapLevel * 40;
+      base *= (1 + player.p2pLevel * 0.12);
+      return Math.floor(Math.max(120, base));
+    }
+
+    function getClicksNeeded() {
+      if (player.level >= 15) return Infinity;
+      let cost = 12000;
+      const mults = [3.55,3.65,3.8,4.0,4.25,4.55,4.9,5.35,5.9,6.6,7.4,8.3,9.4,10.7];
+      for (let i = 1; i < player.level; i++) cost *= mults[Math.min(i-1, mults.length-1)];
+      return Math.ceil(cost / Math.max(1, player.level * 4.5));
+    }
+
+    function checkLevelUp() {
+      let needed = getClicksNeeded();
+      let leveled = false;
+      while (player.accumulatedClicks >= needed && player.level < 15) {
+        player.accumulatedClicks -= needed;
+        player.level++;
+        needed = getClicksNeeded();
+        leveled = true;
+      }
+      if (leveled) showLevelUp(player.level);
+    }
+
+    function showLevelUp(newLvl) {
+      document.getElementById('newLevel').textContent = newLvl;
+      const overlay = document.getElementById('levelUpOverlay');
+      overlay.style.display = 'flex';
+      createParticles();
+      setTimeout(() => { overlay.style.display = 'none'; }, 2800);
+    }
+
+    function createParticles() {
+      const cont = document.getElementById('particles');
+      cont.innerHTML = '';
+      for (let i = 0; i < 60; i++) {
+        const p = document.createElement('div');
+        p.style.position = 'absolute';
+        p.style.width = '5px';
+        p.style.height = '5px';
+        p.style.background = `hsl(${Math.random()*60 + 80}, 100%, 55%)`;
+        p.style.left = Math.random()*100 + '%';
+        p.style.top = Math.random()*100 + '%';
+        p.style.opacity = Math.random()*0.7 + 0.3;
+        p.style.animation = `floatParticle ${1 + Math.random()*1.2}s forwards`;
+        cont.appendChild(p);
+      }
+    }
+
+    // ────────────────────────────────────────────────
+    // Основной тап
+    // ────────────────────────────────────────────────
+    function tap(e) {
+      if (player.energy <= 0) return showFZ115();
+
+      const now = Date.now();
+      if (now - lastTapTime < 60) return;
+      lastTapTime = now;
+
+      if (now - lastTapSecond > 1000) {
+        tapCountThisSecond = 0;
+        lastTapSecond = now;
+      }
+      tapCountThisSecond++;
+      if (tapCountThisSecond > 18) return;
+
+      if (!musicStarted) {
+        document.getElementById('bgMusic').volume = 0.12;
+        document.getElementById('bgMusic').play().catch(()=>{});
+        musicStarted = true;
+      }
+
+      document.getElementById('clickSound').currentTime = 0;
+      document.getElementById('clickSound').volume = 0.25;
+      document.getElementById('clickSound').play().catch(()=>{});
+
+      player.energy = Math.max(0, player.energy - 1);
+      const earn = getTapIncome();
+      player.coins += earn;
+      player.accumulatedClicks++;
+
+      let scale = 1.14;
+      const animate = () => {
+        ctx.save();
+        ctx.translate(190, 180);
+        ctx.scale(scale, scale);
+        ctx.translate(-190, -180);
+        drawCard();
+        ctx.restore();
+        scale -= 0.028;
+        if (scale > 1) requestAnimationFrame(animate);
+      };
+      animate();
+
+      createFloatingText(earn, e.offsetX, e.offsetY);
+      checkLevelUp();
+      updateUI();
+    }
+
+    // ────────────────────────────────────────────────
+    // Остальные функции (магазин, daily, FZ-115 и т.д.)
+    // ────────────────────────────────────────────────
+    function showFZ115() {
+      let html = `<div class="fz">ФЗ-115</div><p style="margin:12px 0;">Счёт заблокирован</p>`;
+      if (player.dropCards > 0) html += `<button onclick="useDropCard()" style="background:#0f0;color:#000;padding:10px 20px;margin:6px;">ДРОП (${player.dropCards})</button>`;
+      html += `<button onclick="restoreEnergy()" style="background:#c00;color:#fff;padding:10px 20px;">СНЯТЬ (1/сутки)</button>`;
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modal').style.display = "flex";
+    }
+
+    function useDropCard() {
+      if (player.dropCards <= 0) return;
+      player.dropCards--;
+      player.energy = player.maxEnergy;
+      closeModal();
+      updateUI();
+    }
+
+    function restoreEnergy() {
+      alert("В этой версии восстановление энергии 1 раз в сутки (пока без сервера — всегда доступно для теста)");
+      player.energy = player.maxEnergy;
+      closeModal();
+      updateUI();
+    }
+
+    function showShop() {
+      let html = `<h2 style="color:#0f0;margin-bottom:12px;">МАГАЗИН</h2>`;
+      html += `<button onclick="buyUpgrade('tap')" style="width:100%;margin:6px 0;padding:10px;">
+        ТАП + (ур. ${player.tapLevel})<br>
+        <small>Цена: ${(4800 * Math.pow(3.15, player.tapLevel)).toLocaleString()} ₽</small>
+      </button>`;
+      html += `<button onclick="buyUpgrade('p2p')" style="width:100%;margin:6px 0;padding:10px;">
+        П2П +12% к пассиву (ур. ${player.p2pLevel})<br>
+        <small>Цена: ${(500 * Math.pow(2.8, player.p2pLevel)).toLocaleString()} ₽</small>
+      </button>`;
+      html += `<button onclick="closeModal()" style="margin-top:12px;padding:10px 20px;">ЗАКРЫТЬ</button>`;
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modal').style.display = "flex";
+    }
+
+    function buyUpgrade(key) {
+      let cost = key === 'tap' ? 4800 * Math.pow(3.15, player.tapLevel) : 500 * Math.pow(2.8, player.p2pLevel);
+      cost = Math.floor(cost);
+      if (player.coins < cost) return alert("Мало денег");
+      player.coins -= cost;
+      if (key === 'tap') player.tapLevel++;
+      else player.p2pLevel++;
+      closeModal();
+      updateUI();
+    }
+
+    function showDaily() {
+      const today = new Date().toDateString();
+      if (player.dailyClaimed === today) {
+        document.getElementById('modalContent').innerHTML = `<h2>Сегодня получено</h2><p>Серия: ${player.streak}</p><button onclick="closeModal()" style="padding:10px 20px;">Закрыть</button>`;
+      } else {
+        const reward = 650 * player.streak;
+        document.getElementById('modalContent').innerHTML = `
+          <h2>ЕЖЕДНЕВНЫЙ БОНУС</h2>
+          <p>Серия: ${player.streak}</p>
+          <button onclick="claimDaily()" style="background:#0f0;color:#000;padding:12px 24px;">+${reward.toLocaleString()} ₽</button>`;
+      }
+      document.getElementById('modal').style.display = "flex";
+    }
+
+    function claimDaily() {
+      const reward = 650 * player.streak;
+      player.coins += reward;
+      player.streak++;
+      player.dailyClaimed = new Date().toDateString();
+      closeModal();
+      updateUI();
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = "none";
+    }
+
+    function showMenu(type) {
+      closeModal();
+      if (type === 'shop') showShop();
+      if (type === 'daily') showDaily();
+    }
+
+    function updateUI() {
+      document.getElementById('coins').textContent = Math.floor(player.coins).toLocaleString();
+      document.getElementById('energy').textContent = Math.floor(player.energy);
+      document.getElementById('maxEnergy').textContent = player.maxEnergy;
+      document.getElementById('level').textContent = player.level;
+      document.getElementById('profit').textContent = getPassivePerHour().toLocaleString();
+      document.getElementById('dropCards').textContent = player.dropCards;
+
+      const needed = getClicksNeeded();
+      const percent = needed === Infinity ? 100 : Math.min(100, Math.floor((player.accumulatedClicks / needed) * 100));
+      document.getElementById('clicksCurrent').textContent = player.accumulatedClicks.toLocaleString();
+      document.getElementById('clicksNeeded').textContent = needed === Infinity ? 'MAX' : needed.toLocaleString();
+      document.getElementById('levelProgressFill').style.width = percent + '%';
+
+      const missing = player.maxEnergy - player.energy;
+      if (missing > 0) {
+        const secLeft = Math.ceil(missing * 3);
+        const min = Math.floor(secLeft / 60);
+        const sec = secLeft % 60;
+        document.getElementById('energyRecover').textContent = `(~${min ? min+'м ' : ''}${sec}с)`;
+      } else {
+        document.getElementById('energyRecover').textContent = '';
+      }
+    }
+
+    // ────────────────────────────────────────────────
+    // Запуск
+    // ────────────────────────────────────────────────
+    window.addEventListener('load', () => {
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand();
+      }
+      updateUI();
+      drawCard();
+      setInterval(() => {
+        // пассивный доход каждую секунду (локально)
+        const now = Date.now();
+        const delta = (now - player.lastOnline) / 1000;
+        player.coins += delta * (getPassivePerHour() / 3600);
+        player.lastOnline = now;
+        // энергия
+        player.energy = Math.min(player.maxEnergy, player.energy + delta / 3);
+        updateUI();
+      }, 1000);
+    });
+
+    canvas.addEventListener('pointerdown', tap);
+  </script>
+</body>
+</html>
