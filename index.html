@@ -339,11 +339,9 @@
       }
       player.coins -= cost;
       player[`${id}Level`] = lvl + 1;
-
       if (id === 'energyMax') player.maxEnergy = 800 + (lvl + 1) * 50;
       if (id === 'energySpeed') player.energyRecoverTime = Math.max(0.4, 3 - (lvl + 1) * 0.26);
       if (id === 'p2p') player.hourlyProfit += 0.8;
-
       saveGame();
       updateUI();
       showShop();
@@ -353,7 +351,6 @@
       const today = new Date().toISOString().split('T')[0];
       let streak = player.streak || 1;
       let canClaim = player.lastBonusClaimed !== today;
-
       if (canClaim) {
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -364,9 +361,7 @@
           streak = 1;
         }
       }
-
       const bonus = getDailyBonus(streak);
-
       let body = `
         <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ЕЖЕДНЕВНЫЙ БОНУС</h2>
         <div style="text-align:center;">
@@ -383,7 +378,6 @@
           </div>
         </div>
       `;
-
       document.getElementById('modalHeader').innerHTML = '';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = canClaim ?
@@ -396,20 +390,16 @@
     function claimDailyBonus(streak) {
       const today = new Date().toISOString().split('T')[0];
       const bonus = getDailyBonus(streak);
-
       player.coins += bonus;
       player.totalCoinsEarned += bonus;
       player.lastBonusClaimed = today;
       player.streak = streak;
-
       saveGame();
       updateUI();
-
       const toast = document.getElementById('achievement-toast');
       toast.innerHTML = `+${bonus.toLocaleString('ru-RU')} ₽<br>Ежедневный бонус!<br>Стрик: ${streak}`;
       toast.style.display = 'block';
       setTimeout(() => { toast.style.display = 'none'; }, 4000);
-
       showDailyBonus();
     }
 
@@ -419,8 +409,8 @@
         saveGame();
       }
 
-      const botUsername = 'https://t.me/BANKTAP_BOT';
-      const refLink = `https://t.me/${@\BANKTAP_BOT}?start=${player.referralCode || 'no_id'}`;
+      const botUsername = 'BANKTAP_BOT'; // ← твой бот здесь (без @, без https://t.me/)
+      const refLink = `https://t.me/${botUsername}?start=${player.referralCode || 'no_id'}`;
 
       let body = `
         <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ТИМЛИД / РЕФЕРАЛЫ</h2>
@@ -430,7 +420,7 @@
           <div style="word-break:break-all;font-size:12px;background:#111;padding:10px;border-radius:6px;color:#0f0;">
             ${refLink}
           </div>
-          <button onclick="navigator.clipboard.writeText('${refLink}').then(()=>tg.showAlert('Ссылка скопирована!'))" style="margin-top:10px;width:100%;padding:10px;background:#0f0;color:#000;border:none;border-radius:6px;">
+          <button onclick="navigator.clipboard.writeText('${refLink}').then(()=>tg.showAlert('Ссылка скопирована!')).catch(()=>tg.showAlert('Не удалось скопировать'))" style="margin-top:10px;width:100%;padding:10px;background:#0f0;color:#000;border:none;border-radius:6px;">
             СКОПИРОВАТЬ ССЫЛКУ
           </button>
         </div>
@@ -460,7 +450,6 @@
         if (ach.type === 'taps') { curr = player.totalTaps; progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${Math.min(100, curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;text-align:right;">${curr.toLocaleString()} / ${ach.value.toLocaleString()}</div>`; }
         else if (ach.type === 'level') { curr = player.level; progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${curr>=ach.value?100:Math.floor(curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;">Уровень: ${curr} / ${ach.value}</div>`; }
         else if (ach.type === 'coins') { curr = Math.floor(player.totalCoinsEarned); progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${Math.min(100, curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;text-align:right;">${curr.toLocaleString()} / ${ach.value.toLocaleString()}</div>`; }
-
         body += `
           <div style="border:2px solid ${unlocked?'#0f0':'#444'};background:${unlocked?'rgba(0,255,0,0.15)':'#111'};padding:12px;margin:8px 0;border-radius:8px;">
             <div style="display:flex;justify-content:space-between;">
@@ -471,7 +460,6 @@
             ${progress}
           </div>`;
       });
-
       document.getElementById('modalHeader').innerHTML = '';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
@@ -485,7 +473,6 @@
         if (ach.type === 'taps') cond = player.totalTaps >= ach.value;
         if (ach.type === 'level') cond = player.level >= ach.value;
         if (ach.type === 'coins') cond = player.totalCoinsEarned >= ach.value;
-
         if (cond && !player.unlockedAchievements.includes(ach.id)) {
           player.unlockedAchievements.push(ach.id);
           player.hourlyProfit += ach.reward;
@@ -507,7 +494,6 @@
       const delta = (now - lastPassiveTime) / 1000;
       lastPassiveTime = now;
 
-      // Обычный пассив
       const totalPassive = player.hourlyProfit + player.referralIncome;
       if (totalPassive > 0) {
         const earned = Math.floor(totalPassive * delta / 3600);
@@ -518,7 +504,6 @@
         }
       }
 
-      // Авто-тап
       if (player.autoTapLevel > 0) {
         const interval = 5000;
         const ticks = Math.floor((now - lastAutoTapTime) / interval);
@@ -569,7 +554,7 @@
         saveGame();
       }
 
-      // Проверка, пришёл ли по реферальной ссылке
+      // Проверка реферального входа
       const urlParams = new URLSearchParams(window.location.search);
       const refFrom = urlParams.get('start');
       if (refFrom && refFrom !== player.referralCode && !player.referralActivated) {
@@ -600,5 +585,4 @@
   </script>
 </body>
 </html>
-
 
