@@ -9,8 +9,8 @@
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      background: linear-gradient(135deg, #000, #001100);
-      color:#0f0;
+      background: linear-gradient(135deg, #000814, #001a00);
+      color:#f0fff0;
       font-family:'Press Start 2P', monospace;
       font-size:10px;
       overflow:hidden;
@@ -19,46 +19,232 @@
       flex-direction:column;
       touch-action:none;
     }
-    #header { padding:8px 12px; display:flex; justify-content:space-between; font-size:9px; background:rgba(0,0,0,0.8); border-bottom:2px solid #0f0; flex-shrink:0; min-height:80px; }
-    .stat-left, .stat-right { display:flex; flex-wrap:wrap; gap:6px; }
-    .stat-left { width:58%; }
-    .stat-right { width:40%; justify-content:flex-end; }
-    .stat-box { background:rgba(0,255,0,0.1); border:1.5px solid #0f0; padding:5px 7px; border-radius:6px; min-width:68px; min-height:28px; text-align:center; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-size:8.5px; }
-    #game-area { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:12px; overflow:hidden; }
-    #card-wrapper { position:relative; width:90%; max-width:360px; user-select:none; touch-action:none; }
-    .canvas-stack { position:relative; width:100%; aspect-ratio:380 / 460; }
-    canvas { position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
+    #header {
+      padding:8px 12px;
+      display:flex;
+      justify-content:space-between;
+      font-size:9px;
+      background:rgba(0,20,0,0.9);
+      border-bottom:2px solid #00ff88;
+      flex-shrink:0;
+      min-height:80px;
+      z-index:10;
+    }
+    .stat-box {
+      background:rgba(0,255,136,0.12);
+      border:1.5px solid #00ff88;
+      padding:6px 8px;
+      border-radius:6px;
+      min-width:85px;
+      min-height:32px;
+      text-align:center;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      white-space:nowrap;
+      font-size:8.5px;
+      box-shadow:0 0 8px rgba(0,255,136,0.4);
+      font-weight:700;
+    }
+    #game-area {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding-top:12px;
+      overflow:hidden;
+      position:relative;
+      z-index:1;
+    }
+    #card-wrapper {
+      position:relative;
+      width:90%;
+      max-width:360px;
+      user-select:none;
+      touch-action:none;
+      z-index:2;
+    }
+    .canvas-stack {
+      position:relative;
+      width:100%;
+      aspect-ratio:380 / 460;
+    }
+    canvas {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      pointer-events:none;
+    }
     #frame-canvas { z-index:1; }
     #content-canvas { z-index:2; transition: transform 0.13s ease-out; transform-origin:center center; will-change:transform; }
-    .level-progress-container { width:90%; max-width:360px; padding:0 10px; margin:4px 0 12px; text-align:center; font-size:9px; min-height:36px; flex-shrink:0; }
-    .level-progress-bar { height:8px; background:#111; border:1.5px solid #0f0; margin-top:3px; overflow:hidden; border-radius:4px; }
-    .level-progress-fill { height:100%; background:linear-gradient(to right, #0f0, #88ff88); width:0%; transition:width 0.5s ease; }
-    .menu { padding:10px; display:flex; flex-direction:column; gap:8px; border-top:2px solid #0f0; background:rgba(0,0,0,0.8); flex-shrink:0; min-height:140px; }
+    .level-progress-container {
+      width:90%;
+      max-width:360px;
+      padding:0 10px;
+      margin:4px 0 12px;
+      text-align:center;
+      font-size:9px;
+      min-height:36px;
+      flex-shrink:0;
+      z-index:2;
+    }
+    .level-progress-bar {
+      height:10px;
+      background:#0f1a0f;
+      border:2px solid #00ff88;
+      margin-top:3px;
+      overflow:hidden;
+      border-radius:6px;
+      box-shadow:0 0 10px rgba(0,255,136,0.5);
+    }
+    .level-progress-fill {
+      height:100%;
+      background:linear-gradient(to right, #00ff88, #39ff14);
+      width:0%;
+      transition:width 0.5s ease;
+    }
+    .menu {
+      padding:10px;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      border-top:2px solid #00ff88;
+      background:rgba(0,20,0,0.9);
+      flex-shrink:0;
+      min-height:140px;
+      z-index:10;
+    }
     .menu-row { display:flex; justify-content:space-between; gap:8px; }
-    button { flex:1; background:#000; color:#0f0; border:2.5px solid #0f0; padding:10px 6px; font-size:10.5px; cursor:pointer; border-radius:6px; min-height:48px; }
-    button:active { transform:scale(0.95); }
-    button:disabled { opacity:0.5; cursor:not-allowed; }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.94); display:none; align-items:center; justify-content:center; z-index:1000; padding:15px; }
-    .modal-inner { width:100%; max-width:360px; max-height:88vh; background:#000; border:3px solid #0f0; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
-    .modal-header { padding:12px; background:rgba(0,255,0,0.1); border-bottom:2px solid #0f0; text-align:center; font-size:15px; }
+    button {
+      flex:1;
+      background:#0f1a0f;
+      color:#f0fff0;
+      border:2.5px solid #00ff88;
+      padding:12px 8px;
+      font-size:11px;
+      cursor:pointer;
+      border-radius:6px;
+      min-height:52px;
+      box-shadow:0 0 12px rgba(0,255,136,0.5);
+      transition:all 0.2s;
+      font-weight:700;
+    }
+    button:active { transform:scale(0.95); box-shadow:0 0 18px #00ff88; }
+    button:disabled { opacity:0.5; cursor:not-allowed; box-shadow:none; }
+    .modal {
+      position:fixed;
+      inset:0;
+      background:rgba(0,15,0,0.96);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      padding:15px;
+    }
+    .modal-inner {
+      width:100%;
+      max-width:360px;
+      max-height:88vh;
+      background:#0a0f0a;
+      border:3px solid #00ff88;
+      border-radius:10px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      box-shadow:0 0 30px rgba(0,255,136,0.6);
+    }
+    .modal-header {
+      padding:12px;
+      background:rgba(0,255,136,0.15);
+      border-bottom:2px solid #00ff88;
+      text-align:center;
+      font-size:15px;
+      font-weight:700;
+    }
     .modal-body { padding:16px; overflow-y:auto; flex:1; }
-    .modal-footer { padding:12px; border-top:2px solid #0f0; background:rgba(0,0,0,0.6); }
-    .float-text { position:absolute; color:#ff0; font-size:20px; pointer-events:none; animation:floatUp 1.2s forwards; text-shadow:0 0 10px #ff0; z-index:10; }
-    #achievement-toast { position:fixed; bottom:140px; left:50%; transform:translateX(-50%); background:rgba(0,20,0,0.95); border:3px solid #0f0; color:#0f0; padding:12px 20px; border-radius:8px; font-size:13px; text-align:center; z-index:3000; box-shadow:0 0 20px #0f0; min-width:220px; display:none; }
+    .modal-footer {
+      padding:12px;
+      border-top:2px solid #00ff88;
+      background:rgba(0,15,0,0.8);
+    }
+    .float-text {
+      position:absolute;
+      color:#ffd700;
+      font-size:20px;
+      pointer-events:none;
+      animation:floatUp 1.2s forwards;
+      text-shadow:0 0 10px #ffd700;
+      z-index:10;
+    }
+    #achievement-toast {
+      position:fixed;
+      bottom:140px;
+      left:50%;
+      transform:translateX(-50%);
+      background:rgba(0,15,0,0.95);
+      border:3px solid #00ff88;
+      color:#f0fff0;
+      padding:12px 20px;
+      border-radius:8px;
+      font-size:13px;
+      text-align:center;
+      z-index:3000;
+      box-shadow:0 0 20px #00ff88;
+      min-width:220px;
+      display:none;
+    }
     @keyframes floatUp { to { transform:translateY(-80px) scale(1.2); opacity:0; } }
+    #level-up-notification {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 255, 136, 0.92);
+      color: #000;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      box-shadow: 0 0 20px #00ff88;
+      z-index: 5000;
+      opacity: 0;
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      pointer-events: none;
+      text-align: center;
+      min-width: 240px;
+      border: 2px solid #000;
+    }
+    #level-up-notification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   </style>
 </head>
 <body>
+  <!-- Звуки из папки audio/ -->
+  <audio id="sound-tap" preload="auto">
+    <source src="audio/tap.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sound-achivka" preload="auto">
+    <source src="audio/achivka.mp3" type="audio/mpeg">
+  </audio>
+  <audio id="sound-level" preload="auto">
+    <source src="audio/level.mp3" type="audio/mpeg">
+  </audio>
+
   <div id="header">
     <div class="stat-left">
       <div class="stat-box">LVL <span id="level">1</span>/15</div>
       <div class="stat-box">₽ <span id="coins">0</span></div>
-      <div class="stat-box">ТАП <span id="perTap">1</span>₽</div>
+      <div class="stat-box">ТАП <span id="perTap">+1 ₽</span></div>
       <div class="stat-box"><span id="profit">0</span> ₽/ч</div>
     </div>
     <div class="stat-right">
       <div class="stat-box">ЭНЕРГИЯ: <span id="energy">800</span>/<span id="maxEnergy">800</span></div>
-      <div class="stat-box">ВОССТ: ~<span id="energySpeed">3.0</span>с</div>
+      <div class="stat-box">ВОССТ: <span id="energySpeed">3.0</span> сек</div>
       <div class="stat-box">ДРОП: <span id="dropCards">0</span>/5</div>
     </div>
   </div>
@@ -101,11 +287,30 @@
   </div>
 
   <div id="achievement-toast"></div>
+  <div id="level-up-notification"></div>
 
   <script>
     const tg = window.Telegram?.WebApp || { ready:()=>{}, expand:()=>{}, showAlert:alert };
     tg.ready();
     tg.expand();
+
+    let userInteracted = false;
+    const sounds = {
+      tap: document.getElementById('sound-tap'),
+      achivka: document.getElementById('sound-achivka'),
+      level: document.getElementById('sound-level')
+    };
+
+    function playSound(type) {
+      const sound = sounds[type];
+      if (!sound) return;
+      if (!userInteracted) userInteracted = true;
+      sound.currentTime = 0;
+      if (type === 'tap') sound.volume = 0.4;
+      else if (type === 'achivka') sound.volume = 0.7;
+      else if (type === 'level') sound.volume = 0.85;
+      sound.play().catch(() => {});
+    }
 
     let player = {
       coins: 0,
@@ -122,21 +327,20 @@
       dropChanceLevel: 0,
       p2pLevel: 0,
       streak: 1,
-      lastBonusClaimed: null,
+      lastBonusClaimTime: 0,          // ← timestamp в миллисекундах (новое поле)
       referrals: 0,
       referralIncome: 0,
       referralCode: null,
       referralActivated: false,
       totalTaps: 0,
       totalCoinsEarned: 0,
-      hourlyProfit: 0,
+      achievementPassiveBonus: 0,
       unlockedAchievements: []
     };
 
     let lastTapTime = 0;
-    let lastPassiveTime = Date.now();
-    let lastAutoTapTime = Date.now();
     let lastEnergyTime = Date.now();
+    let bonusTimerInterval = null;
 
     const frameCanvas = document.getElementById('frame-canvas');
     const frameCtx = frameCanvas.getContext('2d');
@@ -172,31 +376,31 @@
       { id: 'level_15', name: 'Генеральный директор', desc: 'Достигни 15 уровня', type: 'level', value: 15, reward: 30 },
       { id: 'coins_50000', name: 'Богатый клиент', desc: 'Заработай 50 000 ₽ всего', type: 'coins', value: 50000, reward: 10 },
       { id: 'coins_500000', name: 'Миллионер', desc: 'Заработай 500 000 ₽ всего', type: 'coins', value: 500000, reward: 20 },
-      { id: 'coins_5000000',name: 'Олигарх', desc: 'Заработай 5 000 000 ₽ всего', type: 'coins', value: 5000000, reward: 35 }
+      { id: 'coins_5000000',name: 'Олигарх', desc: 'Заработай 5 000 000 ₽ всего',type: 'coins', value: 5000000,reward: 35 }
     ];
 
     function drawFrame() {
       frameCtx.clearRect(0, 0, 380, 460);
-      frameCtx.strokeStyle = "#0f0"; frameCtx.lineWidth = 6; frameCtx.lineJoin = 'round';
+      frameCtx.strokeStyle = "#00ff9d"; frameCtx.lineWidth = 6; frameCtx.lineJoin = 'round';
       frameCtx.strokeRect(20, 50, 340, 360);
-      frameCtx.fillStyle = "#0f0"; frameCtx.font = "bold 16px 'Press Start 2P'";
+      frameCtx.fillStyle = "#ffffff"; frameCtx.font = "bold 16px 'Press Start 2P'";
       frameCtx.textAlign = "center"; frameCtx.fillText(`LVL ${player.level}`, 190, 85);
     }
 
     function drawContent() {
       contentCtx.clearRect(0, 0, 380, 460);
-      const bank = banks[player.level - 1] || {name: "BANK TAP", color: "#0f0"};
+      const bank = banks[player.level - 1] || {name: "BANK TAP", color: "#00ff9d"};
       contentCtx.shadowBlur = 15; contentCtx.shadowColor = bank.color;
       contentCtx.fillStyle = bank.color; contentCtx.fillRect(50, 130, 280, 160);
       contentCtx.shadowBlur = 0;
-      contentCtx.fillStyle = "rgba(255,255,255,0.25)"; contentCtx.fillRect(58, 138, 264, 35);
+      contentCtx.fillStyle = "rgba(255,255,255,0.3)"; contentCtx.fillRect(58, 138, 264, 35);
       contentCtx.fillStyle = "#ffd700"; contentCtx.fillRect(75, 160, 65, 45);
-      contentCtx.fillStyle = "#fff"; contentCtx.font = "bold 22px 'Press Start 2P'";
-      contentCtx.textAlign = "center"; contentCtx.shadowBlur = 10; contentCtx.shadowColor = "#ff0";
+      contentCtx.fillStyle = "#ffffff"; contentCtx.font = "bold 22px 'Press Start 2P'";
+      contentCtx.textAlign = "center"; contentCtx.shadowBlur = 10; contentCtx.shadowColor = "#000000";
       contentCtx.fillText(bank.name, 190, 215);
-      contentCtx.shadowBlur = 0; contentCtx.font = "14px monospace"; contentCtx.fillStyle = "#fff";
+      contentCtx.shadowBlur = 0; contentCtx.font = "14px monospace"; contentCtx.fillStyle = "#ffffff";
       contentCtx.fillText("•••• •••• •••• " + (1000 + player.level*111), 190, 250);
-      contentCtx.fillStyle = "#0f0"; contentCtx.font = "12px 'Press Start 2P'";
+      contentCtx.fillStyle = "#00ff9d"; contentCtx.font = "bold 12px 'Press Start 2P'";
       contentCtx.fillText("МИР", 260, 280);
     }
 
@@ -209,28 +413,44 @@
       document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
     }
 
+    function showTopNotification(message, type = 'level') {
+      const notif = document.getElementById('level-up-notification');
+      notif.textContent = message;
+      if (type === 'level') {
+        notif.style.background = 'rgba(0, 255, 157, 0.92)';
+        notif.style.color = '#000';
+      } else {
+        notif.style.background = 'rgba(255, 215, 0, 0.92)';
+        notif.style.color = '#000';
+      }
+      notif.classList.add('show');
+      setTimeout(() => notif.classList.remove('show'), 4000);
+    }
+
     function tap(e) {
       e.preventDefault(); e.stopPropagation();
       if (player.energy <= 0) return;
       if (Date.now() - lastTapTime < 60) return;
       lastTapTime = Date.now();
-
+      playSound('tap');
       player.energy = Math.max(0, player.energy - 1);
       const earn = Math.floor(1 + player.manualLevel * 1.15);
       player.coins += earn;
-      player.accumulatedClicks++; player.totalTaps++; player.totalCoinsEarned += earn;
-
+      player.accumulatedClicks++;
+      player.totalTaps++;
+      player.totalCoinsEarned += earn;
       contentCanvas.style.transform = 'scale(1.06) translateY(-6px)';
       setTimeout(() => contentCanvas.style.transform = 'scale(1) translateY(0)', 110);
-
       const rect = wrapper.getBoundingClientRect();
       let cx = e.clientX ?? (e.touches?.[0]?.clientX ?? rect.left + rect.width/2);
       let cy = e.clientY ?? (e.touches?.[0]?.clientY ?? rect.top + rect.height/2);
       const ox = cx - rect.left + Math.random()*40 - 20;
       const oy = cy - rect.top - 30;
       createFloatingText(earn, rect.left + ox, rect.top + oy);
-
-      checkLevelUp(); checkAllAchievements(); updateUI(); saveGame();
+      checkLevelUp();
+      checkAllAchievements();
+      updateUI();
+      saveGame();
     }
 
     function updateUI() {
@@ -238,17 +458,17 @@
       document.getElementById('energy').textContent = Math.floor(player.energy);
       document.getElementById('maxEnergy').textContent = player.maxEnergy;
       document.getElementById('level').textContent = player.level;
-      document.getElementById('profit').textContent = Math.floor(player.hourlyProfit + player.referralIncome).toLocaleString('ru-RU');
+     
+      const passive = player.achievementPassiveBonus + (player.p2pLevel * 0.8) + player.referralIncome;
+      document.getElementById('profit').textContent = Math.floor(passive).toLocaleString('ru-RU');
       document.getElementById('dropCards').textContent = player.dropCards;
-      document.getElementById('perTap').textContent = Math.floor(1 + player.manualLevel * 1.15);
+      document.getElementById('perTap').textContent = `+${Math.floor(1 + player.manualLevel * 1.15)} ₽`;
       document.getElementById('energySpeed').textContent = player.energyRecoverTime.toFixed(1);
-
       const needed = getClicksNeeded();
       const percent = needed === Infinity ? 100 : Math.min(100, Math.floor((player.accumulatedClicks / needed) * 100));
       document.getElementById('clicksCurrent').textContent = player.accumulatedClicks.toLocaleString('ru-RU');
       document.getElementById('clicksNeeded').textContent = needed === Infinity ? 'MAX' : needed.toLocaleString('ru-RU');
       document.getElementById('levelProgressFill').style.width = percent + '%';
-
       redraw();
     }
 
@@ -260,34 +480,122 @@
 
     function checkLevelUp() {
       let needed = getClicksNeeded();
+      let oldLevel = player.level;
       while (player.accumulatedClicks >= needed && player.level < 15) {
         player.accumulatedClicks -= needed;
         player.level++;
-        tg.showAlert(`LEVEL UP! Теперь уровень ${player.level}`);
         needed = getClicksNeeded();
+      }
+      if (player.level > oldLevel) {
+        playSound('level');
+        showTopNotification(`LEVEL UP! Теперь уровень ${player.level} 🔥`, 'level');
         checkAllAchievements();
       }
     }
 
-    function getDailyBonus(day) {
-      const bonuses = [500, 800, 1200, 1800, 2500, 3500, 5000];
-      if (day <= 7) return bonuses[day - 1] || 500;
-      return 5000 + (day - 7) * 300;
+    function checkAllAchievements() {
+      let newlyUnlocked = [];
+      achievements.forEach(ach => {
+        if (player.unlockedAchievements.includes(ach.id)) return;
+        let unlocked = false;
+        if (ach.type === 'taps' && player.totalTaps >= ach.value) unlocked = true;
+        if (ach.type === 'level' && player.level >= ach.value) unlocked = true;
+        if (ach.type === 'coins' && player.totalCoinsEarned >= ach.value) unlocked = true;
+        if (unlocked) {
+          player.unlockedAchievements.push(ach.id);
+          player.achievementPassiveBonus += ach.reward;
+          newlyUnlocked.push(ach);
+        }
+      });
+      if (newlyUnlocked.length > 0) {
+        playSound('achivka');
+        saveGame();
+        updateUI();
+        const total = newlyUnlocked.reduce((sum, a) => sum + a.reward, 0);
+        const names = newlyUnlocked.map(a => a.name).join(', ');
+        showTopNotification(`Достижение: ${names}!\n+${total} ₽/ч к пассивному доходу`, 'achievement');
+      }
+    }
+
+    function showAchievements() {
+      let body = '<h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ДОСТИЖЕНИЯ 🏆</h2>';
+      achievements.forEach(ach => {
+        const isUnlocked = player.unlockedAchievements.includes(ach.id);
+       
+        let progress = 0;
+        let currentValue = 0;
+        let targetValue = ach.value;
+        let progressText = '';
+        if (ach.type === 'taps') {
+          currentValue = player.totalTaps;
+          progress = Math.min(100, Math.floor((currentValue / targetValue) * 100));
+          progressText = `${currentValue.toLocaleString('ru-RU')} / ${targetValue.toLocaleString('ru-RU')} тапов`;
+        } else if (ach.type === 'level') {
+          currentValue = player.level;
+          progress = Math.min(100, Math.floor((currentValue / targetValue) * 100));
+          progressText = `Уровень ${currentValue} / ${targetValue}`;
+        } else if (ach.type === 'coins') {
+          currentValue = player.totalCoinsEarned;
+          progress = Math.min(100, Math.floor((currentValue / targetValue) * 100));
+          progressText = `${Math.floor(currentValue).toLocaleString('ru-RU')} / ${targetValue.toLocaleString('ru-RU')} ₽`;
+        }
+        const barColor = isUnlocked ? '#00ff9d' : (progress >= 100 ? '#ffd700' : '#555');
+        const barBg = isUnlocked ? 'rgba(0,255,157,0.3)' : '#0f1a0f';
+        body += `
+          <div style="border:2px solid ${isUnlocked ? '#00ff9d' : '#444'};
+                      background: ${isUnlocked ? 'rgba(0,255,157,0.12)' : '#001a33'};
+                      padding:14px 12px; margin:12px 0; border-radius:10px;
+                      opacity: ${isUnlocked ? '1' : '0.85'};">
+           
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+              <span style="font-weight:bold; font-size:14px; color:${isUnlocked ? '#00ff9d' : '#f0fff0'}">
+                ${ach.name}
+              </span>
+              <span style="font-size:12px; color:${isUnlocked ? '#00ff9d' : '#aaa'}">
+                ${isUnlocked ? '✅ Получено' : `+${ach.reward} ₽/ч`}
+              </span>
+            </div>
+           
+            <div style="font-size:11px; color:#aaa; margin-bottom:6px;">
+              ${ach.desc}
+            </div>
+           
+            ${!isUnlocked ? `
+              <div style="margin-top:10px;">
+                <div style="height:8px; background:${barBg}; border-radius:4px; overflow:hidden; border:1px solid #333;">
+                  <div style="height:100%; width:${progress}%; background:${barColor}; transition:width 0.4s ease;"></div>
+                </div>
+                <div style="text-align:center; font-size:10px; color:#aaa; margin-top:4px;">
+                  ${progressText} — ${progress}%
+                </div>
+              </div>
+            ` : `
+              <div style="text-align:center; font-size:11px; color:#00ff9d; margin-top:8px; font-weight:bold;">
+                100% — выполнено!
+              </div>
+            `}
+          </div>`;
+      });
+      const footer = '<button onclick="closeModal()" style="width:100%; padding:14px; background:#001a33; border:2px solid #00ff9d; color:#f0f8ff; border-radius:8px; margin-top:12px; font-size:13px;">ЗАКРЫТЬ</button>';
+      document.getElementById('modalHeader').innerHTML = '';
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = footer;
+      document.getElementById('modal').style.display = 'flex';
+      redraw();
     }
 
     function showMenu(type) {
       if (type === 'shop') return showShop();
       if (type === 'daily') return showDailyBonus();
       if (type === 'refs') return showReferrals();
-
-      let header = `<h2 style="color:#0f0;margin:0;">${type.toUpperCase()}</h2>`;
+      let header = `<h2 style="color:#00ff9d;margin:0;">${type.toUpperCase()}</h2>`;
       let body = '<p style="margin:40px 0;text-align:center;color:#aaa;">Раздел в разработке</p>';
-      let footer = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
-
+      let footer = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modalHeader').innerHTML = header;
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = footer;
       document.getElementById('modal').style.display = 'flex';
+      redraw();
     }
 
     function showShop() {
@@ -299,32 +607,31 @@
         const next = lvl < max ? item.effect(lvl + 1) : null;
         const cost = lvl >= max ? 0 : Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
         const canBuy = lvl < max && player.coins >= cost;
-
         body += `
-          <div style="border:2px solid ${lvl>=max?'#0f0':'#444'};background:${lvl>=max?'rgba(0,255,0,0.15)':'#111'};padding:12px;margin:10px 0;border-radius:8px;">
+          <div style="border:2px solid ${lvl>=max?'#00ff9d':'#444'};background:${lvl>=max?'rgba(0,255,157,0.15)':'#001a33'};padding:12px;margin:10px 0;border-radius:8px;">
             <div style="display:flex;justify-content:space-between;font-weight:bold;">
               <span>${item.name}</span>
-              <span style="color:#ff0;">${lvl}/${max}</span>
+              <span style="color:#ffd700;">${lvl}/${max}</span>
             </div>
             <div style="font-size:11px;color:#aaa;margin:6px 0;">${item.desc}</div>
             <div style="display:flex;justify-content:space-between;font-size:11px;">
-              <span>Сейчас:</span><span style="color:#0f0;">${curr}${item.id==='energySpeed'?'с':''}${item.id==='p2p'?'₽/ч':''}${item.id==='autoTap'?' тап/5с':''}</span>
+              <span>Сейчас:</span><span style="color:#00ff9d;">${curr}${item.id==='energySpeed'?'с':''}${item.id==='p2p'?'₽/ч':''}${item.id==='autoTap'?' тап/5с':''}</span>
             </div>
-            ${next!==null?`<div style="display:flex;justify-content:space-between;font-size:11px;color:#ff0;">
+            ${next!==null?`<div style="display:flex;justify-content:space-between;font-size:11px;color:#ffd700;">
               <span>Далее:</span><span>${next}${item.id==='energySpeed'?'с':''}${item.id==='p2p'?'₽/ч':''}${item.id==='autoTap'?' тап/5с':''}</span>
             </div>`:''}
-            ${lvl < max ? 
-              `<button onclick="buyItem('${item.id}')" ${!canBuy?'disabled':''} style="margin-top:8px;width:100%;padding:10px;background:${canBuy?'#0f0':'#333'};color:${canBuy?'#000':'#666'};border:none;border-radius:6px;">
-                ${canBuy ? `КУПИТЬ (${cost.toLocaleString()} ₽)` : `Недостаточно`}
-              </button>` : 
-              `<div style="margin-top:8px;padding:10px;background:#222;color:#555;text-align:center;border-radius:6px;">МАКСИМУМ</div>`}
+            ${lvl < max ?
+              `<button onclick="buyItem('${item.id}')" ${!canBuy?'disabled':''} style="margin-top:8px;width:100%;padding:10px;background:${canBuy?'#00ff9d':'#444'};color:${canBuy?'#000':'#aaa'};border:none;border-radius:6px;">
+                ${canBuy ? `КУПИТЬ (${cost.toLocaleString()} ₽)` : `НЕДОСТАТОЧНО`}
+              </button>` :
+              `<div style="margin-top:8px;padding:10px;background:#001a33;color:#666;text-align:center;border-radius:6px;">МАКСИМУМ</div>`}
           </div>`;
       });
-
-      document.getElementById('modalHeader').innerHTML = '<h2 style="color:#0f0;margin:0;">МАГАЗИН 🛒</h2>';
+      document.getElementById('modalHeader').innerHTML = '<h2 style="color:#00ff9d;margin:0;">МАГАЗИН 🛒</h2>';
       document.getElementById('modalBody').innerHTML = body;
-      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
+      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modal').style.display = 'flex';
+      redraw();
     }
 
     function buyItem(id) {
@@ -334,7 +641,7 @@
       if (lvl >= item.maxLvl) return;
       const cost = Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
       if (player.coins < cost) {
-        tg.showAlert(`Недостаточно средств! Нужно ${cost.toLocaleString()} ₽`);
+        tg.showAlert(`Недостаточно средств!\nНужно: ${cost.toLocaleString()} ₽`);
         return;
       }
       player.coins -= cost;
@@ -347,60 +654,144 @@
       showShop();
     }
 
-    function showDailyBonus() {
-      const today = new Date().toISOString().split('T')[0];
-      let streak = player.streak || 1;
-      let canClaim = player.lastBonusClaimed !== today;
-      if (canClaim) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yStr = yesterday.toISOString().split('T')[0];
-        if (player.lastBonusClaimed === yStr) {
-          streak = (player.streak || 1) + 1;
-        } else if (player.lastBonusClaimed && player.lastBonusClaimed < yStr) {
-          streak = 1;
-        }
-      }
-      const bonus = getDailyBonus(streak);
-      let body = `
-        <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ЕЖЕДНЕВНЫЙ БОНУС</h2>
-        <div style="text-align:center;">
-          <div style="font-size:18px;color:#0f0;">Стрик: <b>${streak} день</b></div>
-          ${canClaim ?
-            `<div style="font-size:26px;color:#ff0;margin:20px 0;">+${bonus.toLocaleString('ru-RU')} ₽</div>` :
-            `<div style="font-size:16px;color:#aaa;margin:20px 0;">Сегодня уже получено<br>Завтра: +${getDailyBonus(streak+1).toLocaleString('ru-RU')} ₽</div>`
-          }
-        </div>
-        <div style="background:rgba(0,255,0,0.1);border:1px solid #0f0;padding:12px;border-radius:8px;margin:20px 0;">
-          <div style="font-size:12px;margin-bottom:8px;">Прогресс 7-дневки:</div>
-          <div style="height:10px;background:#222;border-radius:5px;overflow:hidden;">
-            <div style="height:100%;width:${Math.min(100, streak/7*100)}%;background:#0f0;"></div>
-          </div>
-        </div>
-      `;
-      document.getElementById('modalHeader').innerHTML = '';
-      document.getElementById('modalBody').innerHTML = body;
-      document.getElementById('modalFooter').innerHTML = canClaim ?
-        `<button onclick="claimDailyBonus(${streak})" style="width:100%;padding:16px;font-size:16px;background:#0f0;color:#000;border:none;border-radius:8px;">ПОЛУЧИТЬ ${bonus.toLocaleString('ru-RU')} ₽</button>
-         <button onclick="closeModal()" style="width:100%;padding:12px;margin-top:10px;background:#222;border:1px solid #444;color:#0f0;">ЗАКРЫТЬ</button>` :
-        `<button onclick="closeModal()" style="width:100%;padding:16px;background:#222;border:1px solid #444;color:#0f0;">ЗАКРЫТЬ</button>`;
-      document.getElementById('modal').style.display = 'flex';
+    // ────────────────────────────────────────────────
+    // НОВАЯ ЛОГИКА ЕЖЕДНЕВНОГО БОНУСА — 24 часа с момента получения
+
+    function canClaimDailyBonusNow() {
+      if (player.lastBonusClaimTime === 0) return true;
+      const HOURS24 = 24 * 60 * 60 * 1000;
+      return Date.now() >= player.lastBonusClaimTime + HOURS24;
     }
 
-    function claimDailyBonus(streak) {
-      const today = new Date().toISOString().split('T')[0];
+    function getTimeUntilNextBonusMs() {
+      if (player.lastBonusClaimTime === 0) return 0;
+      const HOURS24 = 24 * 60 * 60 * 1000;
+      return Math.max(0, player.lastBonusClaimTime + HOURS24 - Date.now());
+    }
+
+    function calculateCurrentStreak() {
+      if (player.lastBonusClaimTime === 0) return 1;
+      const timeSinceLast = Date.now() - player.lastBonusClaimTime;
+      const MS_IN_DAY = 24 * 60 * 60 * 1000;
+      // до 36 часов — стрик продолжается
+      if (timeSinceLast < MS_IN_DAY * 1.5) {
+        return (player.streak || 1) + 1;
+      }
+      return 1; // сброс
+    }
+
+    function formatTimeLeft(ms) {
+      if (ms <= 0) return "00:00:00";
+      const h = Math.floor(ms / 3600000);
+      const m = Math.floor((ms % 3600000) / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+
+    function getDailyBonus(streak) {
+      const bonuses = [500, 800, 1200, 1800, 2500, 3500, 5000];
+      return bonuses[Math.min(streak - 1, bonuses.length - 1)] || 500;
+    }
+
+    function claimDailyBonus() {
+      if (!canClaimDailyBonusNow()) {
+        tg.showAlert("Бонус ещё не доступен. Подождите 24 часа.");
+        return;
+      }
+
+      const streak = calculateCurrentStreak();
       const bonus = getDailyBonus(streak);
+
       player.coins += bonus;
       player.totalCoinsEarned += bonus;
-      player.lastBonusClaimed = today;
+      player.lastBonusClaimTime = Date.now();
       player.streak = streak;
+
       saveGame();
       updateUI();
+      checkAllAchievements();
+
       const toast = document.getElementById('achievement-toast');
       toast.innerHTML = `+${bonus.toLocaleString('ru-RU')} ₽<br>Ежедневный бонус!<br>Стрик: ${streak}`;
       toast.style.display = 'block';
-      setTimeout(() => { toast.style.display = 'none'; }, 4000);
-      showDailyBonus();
+      setTimeout(() => toast.style.display = 'none', 5000);
+
+      showDailyBonus(); // обновляем — теперь таймер
+    }
+
+    function startBonusTimer() {
+      const timerEl = document.getElementById('bonus-timer');
+      if (!timerEl) return;
+
+      function tick() {
+        const msLeft = getTimeUntilNextBonusMs();
+        timerEl.textContent = formatTimeLeft(msLeft);
+        if (msLeft <= 0) {
+          clearInterval(bonusTimerInterval);
+          bonusTimerInterval = null;
+          showDailyBonus(); // переключаемся на кнопку забрать
+        }
+      }
+
+      tick();
+      if (bonusTimerInterval) clearInterval(bonusTimerInterval);
+      bonusTimerInterval = setInterval(tick, 1000);
+    }
+
+    function showDailyBonus() {
+      const canClaim = canClaimDailyBonusNow();
+      const streak = canClaim ? calculateCurrentStreak() : (player.streak || 1);
+      const bonus = canClaim ? getDailyBonus(streak) : 0;
+
+      let body = `
+        <h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ЕЖЕДНЕВНЫЙ БОНУС</h2>
+        <div style="text-align:center;">
+          <div style="font-size:18px;color:#f0f8ff;">Стрик: <b>${streak} день</b></div>
+      `;
+
+      if (canClaim) {
+        body += `
+          <div style="font-size:28px;color:#ffd700;margin:24px 0;font-weight:bold;">
+            +${bonus.toLocaleString('ru-RU')} ₽
+          </div>
+          <button onclick="claimDailyBonus()" style="margin:20px auto; display:block; padding:18px 40px; font-size:20px; background:#00ff9d; color:#000; border:none; border-radius:12px; font-weight:bold; cursor:pointer; box-shadow:0 0 15px #00ff88;">
+            ЗАБРАТЬ ${bonus.toLocaleString('ru-RU')} ₽
+          </button>
+        `;
+      } else {
+        const msLeft = getTimeUntilNextBonusMs();
+        body += `
+          <div style="font-size:18px;color:#aaa;margin:20px 0;">Бонус уже получен</div>
+          <div style="font-size:17px;color:#ffd700;margin:12px 0;">Следующий через:</div>
+          <div id="bonus-timer" style="font-size:36px; font-weight:bold; color:#00ff9d; margin:20px 0; letter-spacing:3px; min-height:50px;">
+            ${formatTimeLeft(msLeft)}
+          </div>
+        `;
+      }
+
+      body += `
+          <div style="background:rgba(0,255,157,0.1);border:1px solid #00ff9d;padding:14px;border-radius:10px;margin:24px 0;">
+            <div style="font-size:13px;margin-bottom:10px;">Прогресс 7-дневного цикла:</div>
+            <div style="height:12px;background:#001a33;border-radius:6px;overflow:hidden;">
+              <div style="height:100%;width:${Math.min(100, streak/7*100)}%;background:#00ff9d;transition:width 0.6s ease;"></div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const footer = `
+        <button onclick="closeModal()" style="width:100%;padding:16px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;border-radius:10px;font-size:15px;">
+          ЗАКРЫТЬ
+        </button>
+      `;
+
+      document.getElementById('modalHeader').innerHTML = '';
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = footer;
+      document.getElementById('modal').style.display = 'flex';
+      redraw();
+
+      if (!canClaim) startBonusTimer();
     }
 
     function showReferrals() {
@@ -408,121 +799,41 @@
         player.referralCode = tg.initDataUnsafe.user.id.toString();
         saveGame();
       }
-
-      const botUsername = 'BANKTAP_BOT'; // ИМЯ ТВОЕГО БОТА БЕЗ @
-      const refLink = `https://t.me/${botUsername}?start=${player.referralCode || 'no_id'}`;
-
+      const botUsername = 'BANKTAP_BOT';
+      const miniAppName = 'banktaps';
+      const refLink = `https://t.me/${botUsername}/${miniAppName}?start=${player.referralCode || 'no_id'}`;
       let body = `
-        <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ТИМЛИД / РЕФЕРАЛЫ</h2>
-        
-        <div style="background:rgba(0,255,0,0.1);border:1px solid #0f0;padding:15px;border-radius:8px;margin:15px 0;">
-          <div style="font-size:13px;margin-bottom:10px;">Твоя реферальная ссылка:</div>
-          <div style="word-break:break-all;font-size:12px;background:#111;padding:10px;border-radius:6px;color:#0f0;">
+        <h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ТИМЛИД / РЕФЕРАЛЫ</h2>
+       
+        <div style="background:rgba(0,255,157,0.1);border:1px solid #00ff9d;padding:15px;border-radius:8px;margin:15px 0;">
+          <div style="font-size:13px;margin-bottom:10px;">Твоя реф. ссылка:</div>
+          <div style="word-break:break-all;font-size:12px;background:#001a33;padding:10px;border-radius:6px;color:#f0f8ff;">
             ${refLink}
           </div>
-          <button onclick="navigator.clipboard.writeText('${refLink}').then(()=>tg.showAlert('Ссылка скопирована!')).catch(()=>tg.showAlert('Не удалось скопировать'))" style="margin-top:10px;width:100%;padding:10px;background:#0f0;color:#000;border:none;border-radius:6px;">
+          <button onclick="navigator.clipboard.writeText('${refLink}').then(()=>tg.showAlert('Ссылка скопирована!')).catch(()=>tg.showAlert('Не удалось скопировать'))" style="margin-top:10px;width:100%;padding:10px;background:#00ff9d;color:#000;border:none;border-radius:6px;">
             СКОПИРОВАТЬ ССЫЛКУ
           </button>
         </div>
-
         <div style="text-align:center;margin:20px 0;">
-          <div style="font-size:18px;color:#0f0;">Приглашено: <b>${player.referrals} чел.</b></div>
-          <div style="font-size:16px;color:#ff0;margin-top:10px;">Доход от рефералов: <b>+${player.referralIncome.toFixed(2)} ₽/ч</b></div>
+          <div style="font-size:18px;color:#f0f8ff;">Приглашено: <b>${player.referrals} чел.</b></div>
+          <div style="font-size:16px;color:#ffd700;margin-top:10px;">Доход от рефералов: <b>+${player.referralIncome.toFixed(2)} ₽/ч</b></div>
         </div>
-
         <div style="font-size:12px;color:#aaa;text-align:center;margin-top:20px;">
           0.5% от заработка каждого реферала — твой пассивный доход навсегда
         </div>
       `;
-
       document.getElementById('modalHeader').innerHTML = '';
       document.getElementById('modalBody').innerHTML = body;
-      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
+      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modal').style.display = 'flex';
-    }
-
-    function showAchievements() {
-      let body = '<h2 style="color:#0f0;text-align:center;margin-bottom:15px;">ДОСТИЖЕНИЯ 🏆</h2>';
-      achievements.forEach(ach => {
-        const unlocked = player.unlockedAchievements.includes(ach.id);
-        let progress = '';
-        let curr = 0;
-        if (ach.type === 'taps') { curr = player.totalTaps; progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${Math.min(100, curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;text-align:right;">${curr.toLocaleString()} / ${ach.value.toLocaleString()}</div>`; }
-        else if (ach.type === 'level') { curr = player.level; progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${curr>=ach.value?100:Math.floor(curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;">Уровень: ${curr} / ${ach.value}</div>`; }
-        else if (ach.type === 'coins') { curr = Math.floor(player.totalCoinsEarned); progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${Math.min(100, curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;text-align:right;">${curr.toLocaleString()} / ${ach.value.toLocaleString()}</div>`; }
-        body += `
-          <div style="border:2px solid ${unlocked?'#0f0':'#444'};background:${unlocked?'rgba(0,255,0,0.15)':'#111'};padding:12px;margin:8px 0;border-radius:8px;">
-            <div style="display:flex;justify-content:space-between;">
-              <span>${unlocked ? '✅' : '🔒'} ${ach.name}</span>
-              <span style="color:#ff0;">+${ach.reward} ₽/ч</span>
-            </div>
-            <div style="font-size:11px;color:#aaa;margin:6px 0;">${ach.desc}</div>
-            ${progress}
-          </div>`;
-      });
-      document.getElementById('modalHeader').innerHTML = '';
-      document.getElementById('modalBody').innerHTML = body;
-      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
-      document.getElementById('modal').style.display = 'flex';
-    }
-
-    function checkAllAchievements() {
-      let anyNew = false;
-      achievements.forEach(ach => {
-        let cond = false;
-        if (ach.type === 'taps') cond = player.totalTaps >= ach.value;
-        if (ach.type === 'level') cond = player.level >= ach.value;
-        if (ach.type === 'coins') cond = player.totalCoinsEarned >= ach.value;
-        if (cond && !player.unlockedAchievements.includes(ach.id)) {
-          player.unlockedAchievements.push(ach.id);
-          player.hourlyProfit += ach.reward;
-          const toast = document.getElementById('achievement-toast');
-          toast.innerHTML = `🏆 ${ach.name}<br>+${ach.reward} ₽/ч`;
-          toast.style.display = 'block';
-          setTimeout(() => { toast.style.display = 'none'; }, 4000);
-          anyNew = true;
-        }
-      });
-      if (anyNew) {
-        updateUI();
-        saveGame();
-      }
-    }
-
-    function passiveIncome() {
-      const now = Date.now();
-      const delta = (now - lastPassiveTime) / 1000;
-      lastPassiveTime = now;
-
-      const totalPassive = player.hourlyProfit + player.referralIncome;
-      if (totalPassive > 0) {
-        const earned = Math.floor(totalPassive * delta / 3600);
-        if (earned > 0) {
-          player.coins += earned;
-          player.totalCoinsEarned += earned;
-          checkAllAchievements();
-        }
-      }
-
-      if (player.autoTapLevel > 0) {
-        const interval = 5000;
-        const ticks = Math.floor((now - lastAutoTapTime) / interval);
-        if (ticks > 0) {
-          const earn = Math.floor(1 + player.manualLevel * 1.15);
-          const total = ticks * player.autoTapLevel * earn;
-          player.coins += total;
-          player.totalCoinsEarned += total;
-          player.totalTaps += ticks * player.autoTapLevel;
-          lastAutoTapTime += ticks * interval;
-          checkAllAchievements();
-        }
-      }
-
-      updateUI();
-      saveGame();
+      redraw();
     }
 
     function closeModal() {
+      if (bonusTimerInterval) {
+        clearInterval(bonusTimerInterval);
+        bonusTimerInterval = null;
+      }
       document.getElementById('modal').style.display = 'none';
       tg.expand();
       redraw();
@@ -539,22 +850,33 @@
         if (saved) {
           const data = JSON.parse(saved);
           Object.assign(player, data);
+
+          // Миграция старого формата (если был lastBonusClaimed)
+          if (data.lastBonusClaimed && typeof player.lastBonusClaimTime !== 'number') {
+            const oldDate = new Date(data.lastBonusClaimed + "T12:00:00Z");
+            player.lastBonusClaimTime = isNaN(oldDate.getTime()) ? Date.now() - 86400000 : oldDate.getTime();
+          }
+
+          // Удаляем устаревшие поля
+          delete player.lastBonusClaimed;
+          delete player.nextBonusTimestamp;
+
           player.maxEnergy = 800 + (player.energyMaxLevel || 0) * 50;
           player.energyRecoverTime = Math.max(0.4, 3 - (player.energySpeedLevel || 0) * 0.26);
         }
       } catch(e) {}
     }
 
+    function passiveIncome() {
+      // пассивный доход — можно реализовать позже
+    }
+
     window.addEventListener('load', () => {
       loadGame();
-
-      // Генерация реферального кода
       if (!player.referralCode && tg.initDataUnsafe?.user?.id) {
         player.referralCode = tg.initDataUnsafe.user.id.toString();
         saveGame();
       }
-
-      // Проверка реферального входа
       const urlParams = new URLSearchParams(window.location.search);
       const refFrom = urlParams.get('start');
       if (refFrom && refFrom !== player.referralCode && !player.referralActivated) {
@@ -564,10 +886,17 @@
         saveGame();
         updateUI();
       }
-
       checkAllAchievements();
-      setTimeout(redraw, 100);
-      setTimeout(updateUI, 150);
+      const tryDraw = () => { redraw(); updateUI(); };
+      setTimeout(tryDraw, 100);
+      setTimeout(tryDraw, 400);
+      setTimeout(tryDraw, 900);
+      if (document.fonts) {
+        document.fonts.ready.then(() => {
+          tryDraw();
+          setTimeout(tryDraw, 300);
+        });
+      }
       setInterval(() => {
         const now = Date.now();
         if (now - lastEnergyTime >= player.energyRecoverTime * 1000 && player.energy < player.maxEnergy) {
@@ -585,4 +914,3 @@
   </script>
 </body>
 </html>
-
