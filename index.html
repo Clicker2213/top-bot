@@ -9,480 +9,594 @@
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      background:#000;
+      background: linear-gradient(135deg, #000, #001100);
       color:#0f0;
       font-family:'Press Start 2P', monospace;
       font-size:10px;
       overflow:hidden;
-      touch-action:manipulation;
-      image-rendering:pixelated;
       height:100vh;
       display:flex;
       flex-direction:column;
+      touch-action:none;
     }
-    #header {
-      padding:8px 10px;
-      display:flex;
-      justify-content:space-between;
-      font-size:9.5px;
-      background:rgba(0,0,0,0.6);
-      border-bottom:2px solid #0f0;
-    }
-    .stat-left, .stat-right { display:flex; flex-direction:column; gap:4px; }
-    .stat-box {
-      background:rgba(0,255,0,0.07);
-      border:1.5px solid #0f0;
-      padding:4px 7px;
-      white-space:nowrap;
-    }
-    canvas {
-      width:100%;
-      max-width:380px;
-      height:auto;
-      border:6px solid #0f0;
-      background:#000;
-      margin:8px auto 4px;
-      display:block;
-    }
-    .level-progress-container {
-      padding:0 10px;
-      margin:4px 0 8px;
-      text-align:center;
-      font-size:9px;
-    }
-    .level-progress-bar {
-      height:7px;
-      background:#111;
-      border:1px solid #0f0;
-      margin-top:3px;
-      overflow:hidden;
-    }
-    .level-progress-fill {
-      height:100%;
-      background:#0f0;
-      width:0%;
-      transition:width 0.35s ease;
-    }
-    .menu {
-      padding:8px 10px;
-      display:flex;
-      justify-content:center;
-      gap:12px;
-      border-top:2px solid #0f0;
-      background:rgba(0,0,0,0.6);
-    }
-    button {
-      background:#000;
-      color:#0f0;
-      border:2.5px solid #0f0;
-      padding:10px 22px;
-      font-size:11px;
-      cursor:pointer;
-      touch-action:manipulation;
-    }
-    button:active {
-      background:#0a0a0a;
-      transform:scale(0.96);
-    }
-    .modal {
-      position:fixed;
-      inset:0;
-      background:rgba(0,0,0,0.92);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      z-index:100;
-      padding:12px;
-    }
-    .modal-content {
-      width:100%;
-      max-width:360px;
-      background:#000;
-      border:3px solid #0f0;
-      padding:16px;
-      text-align:center;
-      font-size:10px;
-    }
-    .fz {
-      font-size:32px;
-      color:#f00;
-      text-shadow:0 0 12px #f00;
-      margin-bottom:12px;
-    }
-    .float-text {
-      position:absolute;
-      color:#ff0;
-      font-size:18px;
-      pointer-events:none;
-      animation:floatUp 1.2s forwards;
-    }
-    @keyframes floatUp {
-      to { transform:translateY(-60px); opacity:0; }
-    }
-    #levelUpOverlay {
-      position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none;
-      align-items:center; justify-content:center; z-index:200; flex-direction:column;
-      font-family:'Press Start 2P', monospace; color:#0f0; text-align:center;
-    }
-    .level-text { font-size:48px; text-shadow:0 0 20px #0f0; animation:pulse 0.8s infinite alternate; }
-    .particles { position:absolute; inset:0; pointer-events:none; }
-    @keyframes pulse { from { transform:scale(0.8); } to { transform:scale(1.1); } }
+    #header { padding:8px 12px; display:flex; justify-content:space-between; font-size:9px; background:rgba(0,0,0,0.8); border-bottom:2px solid #0f0; flex-shrink:0; min-height:80px; }
+    .stat-left, .stat-right { display:flex; flex-wrap:wrap; gap:6px; }
+    .stat-left { width:58%; }
+    .stat-right { width:40%; justify-content:flex-end; }
+    .stat-box { background:rgba(0,255,0,0.1); border:1.5px solid #0f0; padding:5px 7px; border-radius:6px; min-width:68px; min-height:28px; text-align:center; display:flex; align-items:center; justify-content:center; white-space:nowrap; font-size:8.5px; }
+    #game-area { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding-top:12px; overflow:hidden; }
+    #card-wrapper { position:relative; width:90%; max-width:360px; user-select:none; touch-action:none; }
+    .canvas-stack { position:relative; width:100%; aspect-ratio:380 / 460; }
+    canvas { position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; }
+    #frame-canvas { z-index:1; }
+    #content-canvas { z-index:2; transition: transform 0.13s ease-out; transform-origin:center center; will-change:transform; }
+    .level-progress-container { width:90%; max-width:360px; padding:0 10px; margin:4px 0 12px; text-align:center; font-size:9px; min-height:36px; flex-shrink:0; }
+    .level-progress-bar { height:8px; background:#111; border:1.5px solid #0f0; margin-top:3px; overflow:hidden; border-radius:4px; }
+    .level-progress-fill { height:100%; background:linear-gradient(to right, #0f0, #88ff88); width:0%; transition:width 0.5s ease; }
+    .menu { padding:10px; display:flex; flex-direction:column; gap:8px; border-top:2px solid #0f0; background:rgba(0,0,0,0.8); flex-shrink:0; min-height:140px; }
+    .menu-row { display:flex; justify-content:space-between; gap:8px; }
+    button { flex:1; background:#000; color:#0f0; border:2.5px solid #0f0; padding:10px 6px; font-size:10.5px; cursor:pointer; border-radius:6px; min-height:48px; }
+    button:active { transform:scale(0.95); }
+    button:disabled { opacity:0.5; cursor:not-allowed; }
+    .modal { position:fixed; inset:0; background:rgba(0,0,0,0.94); display:none; align-items:center; justify-content:center; z-index:1000; padding:15px; }
+    .modal-inner { width:100%; max-width:360px; max-height:88vh; background:#000; border:3px solid #0f0; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+    .modal-header { padding:12px; background:rgba(0,255,0,0.1); border-bottom:2px solid #0f0; text-align:center; font-size:15px; }
+    .modal-body { padding:16px; overflow-y:auto; flex:1; }
+    .modal-footer { padding:12px; border-top:2px solid #0f0; background:rgba(0,0,0,0.6); }
+    .float-text { position:absolute; color:#ff0; font-size:20px; pointer-events:none; animation:floatUp 1.2s forwards; text-shadow:0 0 10px #ff0; z-index:10; }
+    #achievement-toast { position:fixed; bottom:140px; left:50%; transform:translateX(-50%); background:rgba(0,20,0,0.95); border:3px solid #0f0; color:#0f0; padding:12px 20px; border-radius:8px; font-size:13px; text-align:center; z-index:3000; box-shadow:0 0 20px #0f0; min-width:220px; display:none; }
+    @keyframes floatUp { to { transform:translateY(-80px) scale(1.2); opacity:0; } }
   </style>
 </head>
 <body>
-
   <div id="header">
     <div class="stat-left">
       <div class="stat-box">LVL <span id="level">1</span>/15</div>
       <div class="stat-box">₽ <span id="coins">0</span></div>
+      <div class="stat-box">ТАП <span id="perTap">1</span>₽</div>
       <div class="stat-box"><span id="profit">0</span> ₽/ч</div>
     </div>
     <div class="stat-right">
-      <div class="stat-box">ЭНЕРГИЯ: <span id="energy">800</span>/<span id="maxEnergy">800</span> <span id="energyRecover"></span></div>
+      <div class="stat-box">ЭНЕРГИЯ: <span id="energy">800</span>/<span id="maxEnergy">800</span></div>
+      <div class="stat-box">ВОССТ: ~<span id="energySpeed">3.0</span>с</div>
       <div class="stat-box">ДРОП: <span id="dropCards">0</span>/5</div>
     </div>
   </div>
 
-  <canvas id="game" width="380" height="460"></canvas>
-
-  <div class="level-progress-container">
-    ДО СЛЕД. УРОВНЯ: <span id="clicksCurrent">0</span> / <span id="clicksNeeded">—</span>
-    <div class="level-progress-bar">
-      <div id="levelProgressFill" class="level-progress-fill"></div>
+  <div id="game-area">
+    <div id="card-wrapper">
+      <div class="canvas-stack">
+        <canvas id="frame-canvas" width="380" height="460"></canvas>
+        <canvas id="content-canvas" width="380" height="460"></canvas>
+      </div>
+    </div>
+    <div class="level-progress-container">
+      ДО СЛЕД. УРОВНЯ: <span id="clicksCurrent">0</span> / <span id="clicksNeeded">—</span>
+      <div class="level-progress-bar"><div id="levelProgressFill" class="level-progress-fill"></div></div>
     </div>
   </div>
 
   <div class="menu">
-    <button onclick="showMenu('shop')">МАГАЗИН</button>
-    <button onclick="showMenu('daily')">ДЕНЬ</button>
+    <div class="menu-row">
+      <button onclick="showMenu('shop')">МАГАЗИН</button>
+      <button onclick="showMenu('market')">ЧЁРНЫЙ РЫНОК</button>
+      <button onclick="showMenu('cards')">КАРТОЧКИ</button>
+    </div>
+    <div class="menu-row">
+      <button onclick="showMenu('daily')">БОНУС</button>
+      <button onclick="showMenu('refs')">ТИМЛИД</button>
+      <button onclick="showMenu('tasks')">ЗАДАНИЯ</button>
+    </div>
+    <div class="menu-row">
+      <button onclick="showAchievements()">ДОСТИЖЕНИЯ 🏆</button>
+    </div>
   </div>
 
   <div id="modal" class="modal">
-    <div id="modalContent" class="modal-content"></div>
+    <div class="modal-inner">
+      <div class="modal-header" id="modalHeader"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-footer" id="modalFooter"></div>
+    </div>
   </div>
 
-  <div id="levelUpOverlay">
-    <div class="level-text">LEVEL UP!</div>
-    <div class="level-text" style="font-size:28px;margin-top:16px;color:#ff0;">LVL <span id="newLevel">2</span></div>
-    <div class="particles" id="particles"></div>
-  </div>
-
-  <audio id="bgMusic" loop preload="auto">
-    <source src="https://cdn.glitch.global/0a5b5d8e-5f5a-4d8e-9b0e-1f5e0d5e5e5e/lofi-8bit-atmosphere.mp3" type="audio/mpeg">
-  </audio>
-  <audio id="clickSound" preload="auto">
-    <source src="https://cdn.glitch.global/0a5b5d8e-5f5a-4d8e-9b0e-1f5e0d5e5e5e/soft-click-short.mp3" type="audio/mpeg">
-  </audio>
+  <div id="achievement-toast"></div>
 
   <script>
-    // ────────────────────────────────────────────────
-    // Встроенный мини-сервер (только для локального теста)
-    // ────────────────────────────────────────────────
-    const isLocalTest = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    const tg = window.Telegram?.WebApp || { ready:()=>{}, expand:()=>{}, showAlert:alert };
+    tg.ready();
+    tg.expand();
 
     let player = {
       coins: 0,
       energy: 800,
       maxEnergy: 800,
+      energyRecoverTime: 3.0,
       level: 1,
       accumulatedClicks: 0,
       dropCards: 0,
-      tapLevel: 0,
+      manualLevel: 0,
+      energyMaxLevel: 0,
+      energySpeedLevel: 0,
+      autoTapLevel: 0,
+      dropChanceLevel: 0,
       p2pLevel: 0,
       streak: 1,
-      dailyClaimed: null,
-      lastOnline: Date.now()
+      lastBonusClaimed: null,
+      referrals: 0,
+      referralIncome: 0,
+      referralCode: null,
+      referralActivated: false,
+      totalTaps: 0,
+      totalCoinsEarned: 0,
+      hourlyProfit: 0,
+      unlockedAchievements: []
     };
 
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
-    let musicStarted = false;
     let lastTapTime = 0;
-    let tapCountThisSecond = 0;
-    let lastTapSecond = Date.now();
+    let lastPassiveTime = Date.now();
+    let lastAutoTapTime = Date.now();
+    let lastEnergyTime = Date.now();
 
-    // ────────────────────────────────────────────────
-    // Функции отрисовки и логики (почти без изменений)
-    // ────────────────────────────────────────────────
-    function drawCard() {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const banks = ["Ozon Bank","Т-Банк","Совкомбанк","Альфа-Банк","ВТБ","Газпромбанк","Россельхозбанк","МКБ","ПСБ","Райффайзенбанк","Росбанк","Открытие","Почта Банк","Русский Стандарт","Сбербанк"];
-      const hue = (player.level * 24) % 360;
-      ctx.fillStyle = `hsl(${hue}, 85%, 32%)`;
-      ctx.fillRect(40, 90, 300, 180);
-      ctx.strokeStyle = "#fff"; ctx.lineWidth = 10;
-      ctx.strokeRect(40, 90, 300, 180);
-      ctx.fillStyle = "rgba(255,255,255,0.2)";
-      ctx.fillRect(48, 98, 284, 35);
-      ctx.fillStyle = "#ffd700";
-      ctx.fillRect(65, 120, 65, 45);
-      ctx.fillStyle = "#fff";
-      ctx.font = "bold 20px 'Press Start 2P'";
-      ctx.textAlign = "center";
-      ctx.shadowBlur = 8; ctx.shadowColor = "#ff0";
-      ctx.fillText(banks[player.level-1] || "??? Bank", 190, 175);
-      ctx.shadowBlur = 0;
-      ctx.font = "14px monospace";
-      ctx.fillText("•••• •••• •••• " + (1000 + player.level*111), 190, 210);
-      ctx.fillStyle = "#0f0";
-      ctx.font = "12px 'Press Start 2P'";
-      ctx.fillText("МИР", 260, 240);
-      ctx.fillStyle = "#0f0";
-      ctx.font = "bold 16px 'Press Start 2P'";
-      ctx.fillText(`LVL ${player.level}`, 190, 60);
+    const frameCanvas = document.getElementById('frame-canvas');
+    const frameCtx = frameCanvas.getContext('2d');
+    const contentCanvas = document.getElementById('content-canvas');
+    const contentCtx = contentCanvas.getContext('2d');
+    const wrapper = document.getElementById('card-wrapper');
+
+    const banks = [
+      {name: "Озн Банк", color: "#003087"},{name: "Р-Банк", color: "#FFDD2D"},{name: "Сквбанк", color: "#003087"},
+      {name: "Алфбанк", color: "#EF3124"},{name: "ВБТ", color: "#0033A0"},{name: "Гзпбанк", color: "#003087"},
+      {name: "Рсхзбанк", color: "#009246"},{name: "МКБ", color: "#FF0000"},{name: "ПСБ", color: "#800080"},
+      {name: "Рйфбанк", color: "#FFDD2D"},{name: "Рсбанк", color: "#003087"},{name: "Откбанк", color: "#FF6600"},
+      {name: "Пчтбанк", color: "#003087"},{name: "Рсстндрт", color: "#808080"},{name: "Сбрбанк", color: "#009246"}
+    ];
+
+    const shopItems = [
+      { id: 'manual', name: 'Мануал', maxLvl:10, basePrice:300, priceMult:1.72, effect: lvl => Math.floor(1 + lvl * 1.15), desc: 'Доход за тап' },
+      { id: 'energyMax', name: 'Макс. энергия', maxLvl:8, basePrice:450, priceMult:1.85, effect: lvl => 800 + lvl * 50, desc: '+50 макс. энергии' },
+      { id: 'energySpeed', name: 'Ускорение энергии', maxLvl:10, basePrice:600, priceMult:1.95, effect: lvl => Math.max(0.4, 3 - lvl * 0.26).toFixed(1), desc: 'Восстановление быстрее' },
+      { id: 'autoTap', name: 'Авто-таппер', maxLvl:6, basePrice:1200, priceMult:2.4, effect: lvl => lvl, desc: 'Тапы каждые 5 сек' },
+      { id: 'dropChance', name: 'Множитель дропа', maxLvl:7, basePrice:1800, priceMult:2.1, effect: lvl => (1 + lvl * 0.15).toFixed(2), desc: '+15% шанс карточки' },
+      { id: 'p2p', name: 'Премиум-карта P2P', maxLvl:12, basePrice:2500, priceMult:1.68, effect: lvl => (lvl * 0.8).toFixed(1), desc: 'Пассивный доход ₽/ч' }
+    ];
+
+    const achievements = [
+      { id: 'taps_100', name: 'Новичок', desc: 'Сделай 100 тапов', type: 'taps', value: 100, reward: 3 },
+      { id: 'taps_1000', name: 'Активный тапер', desc: 'Сделай 1 000 тапов', type: 'taps', value: 1000, reward: 5 },
+      { id: 'taps_10000', name: 'Профессионал', desc: 'Сделай 10 000 тапов', type: 'taps', value: 10000, reward: 10 },
+      { id: 'taps_50000', name: 'Мастер тапа', desc: 'Сделай 50 000 тапов', type: 'taps', value: 50000, reward: 15 },
+      { id: 'taps_200000', name: 'Легенда тапа', desc: 'Сделай 200 000 тапов', type: 'taps', value: 200000, reward: 25 },
+      { id: 'level_5', name: 'Менеджер банка', desc: 'Достигни 5 уровня', type: 'level', value: 5, reward: 8 },
+      { id: 'level_10', name: 'Вице-президент', desc: 'Достигни 10 уровня', type: 'level', value: 10, reward: 15 },
+      { id: 'level_15', name: 'Генеральный директор', desc: 'Достигни 15 уровня', type: 'level', value: 15, reward: 30 },
+      { id: 'coins_50000', name: 'Богатый клиент', desc: 'Заработай 50 000 ₽ всего', type: 'coins', value: 50000, reward: 10 },
+      { id: 'coins_500000', name: 'Миллионер', desc: 'Заработай 500 000 ₽ всего', type: 'coins', value: 500000, reward: 20 },
+      { id: 'coins_5000000',name: 'Олигарх', desc: 'Заработай 5 000 000 ₽ всего', type: 'coins', value: 5000000, reward: 35 }
+    ];
+
+    function drawFrame() {
+      frameCtx.clearRect(0, 0, 380, 460);
+      frameCtx.strokeStyle = "#0f0"; frameCtx.lineWidth = 6; frameCtx.lineJoin = 'round';
+      frameCtx.strokeRect(20, 50, 340, 360);
+      frameCtx.fillStyle = "#0f0"; frameCtx.font = "bold 16px 'Press Start 2P'";
+      frameCtx.textAlign = "center"; frameCtx.fillText(`LVL ${player.level}`, 190, 85);
     }
 
-    function createFloatingText(amount, x, y, color = "#ff0") {
+    function drawContent() {
+      contentCtx.clearRect(0, 0, 380, 460);
+      const bank = banks[player.level - 1] || {name: "BANK TAP", color: "#0f0"};
+      contentCtx.shadowBlur = 15; contentCtx.shadowColor = bank.color;
+      contentCtx.fillStyle = bank.color; contentCtx.fillRect(50, 130, 280, 160);
+      contentCtx.shadowBlur = 0;
+      contentCtx.fillStyle = "rgba(255,255,255,0.25)"; contentCtx.fillRect(58, 138, 264, 35);
+      contentCtx.fillStyle = "#ffd700"; contentCtx.fillRect(75, 160, 65, 45);
+      contentCtx.fillStyle = "#fff"; contentCtx.font = "bold 22px 'Press Start 2P'";
+      contentCtx.textAlign = "center"; contentCtx.shadowBlur = 10; contentCtx.shadowColor = "#ff0";
+      contentCtx.fillText(bank.name, 190, 215);
+      contentCtx.shadowBlur = 0; contentCtx.font = "14px monospace"; contentCtx.fillStyle = "#fff";
+      contentCtx.fillText("•••• •••• •••• " + (1000 + player.level*111), 190, 250);
+      contentCtx.fillStyle = "#0f0"; contentCtx.font = "12px 'Press Start 2P'";
+      contentCtx.fillText("МИР", 260, 280);
+    }
+
+    function redraw() { drawFrame(); drawContent(); }
+
+    function createFloatingText(amount, x, y) {
       const el = document.createElement('div');
-      el.className = 'float-text';
-      el.textContent = `+${amount.toLocaleString()}`;
-      el.style.left = (x + canvas.offsetLeft + 15) + 'px';
-      el.style.top = (y + canvas.offsetTop - 25) + 'px';
-      el.style.color = color;
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1200);
+      el.className = 'float-text'; el.textContent = `+${amount}`;
+      el.style.left = `${x}px`; el.style.top = `${y}px`;
+      document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
     }
 
-    function getTapIncome() {
-      return Math.floor((player.level * 4.5 + player.tapLevel * player.level * 1.6) * 1);
+    function tap(e) {
+      e.preventDefault(); e.stopPropagation();
+      if (player.energy <= 0) return;
+      if (Date.now() - lastTapTime < 60) return;
+      lastTapTime = Date.now();
+
+      player.energy = Math.max(0, player.energy - 1);
+      const earn = Math.floor(1 + player.manualLevel * 1.15);
+      player.coins += earn;
+      player.accumulatedClicks++; player.totalTaps++; player.totalCoinsEarned += earn;
+
+      contentCanvas.style.transform = 'scale(1.06) translateY(-6px)';
+      setTimeout(() => contentCanvas.style.transform = 'scale(1) translateY(0)', 110);
+
+      const rect = wrapper.getBoundingClientRect();
+      let cx = e.clientX ?? (e.touches?.[0]?.clientX ?? rect.left + rect.width/2);
+      let cy = e.clientY ?? (e.touches?.[0]?.clientY ?? rect.top + rect.height/2);
+      const ox = cx - rect.left + Math.random()*40 - 20;
+      const oy = cy - rect.top - 30;
+      createFloatingText(earn, rect.left + ox, rect.top + oy);
+
+      checkLevelUp(); checkAllAchievements(); updateUI(); saveGame();
     }
 
-    function getPassivePerHour() {
-      let base = 160 + player.dropCards * 85;
-      base += player.tapLevel * 40;
-      base *= (1 + player.p2pLevel * 0.12);
-      return Math.floor(Math.max(120, base));
+    function updateUI() {
+      document.getElementById('coins').textContent = Math.floor(player.coins).toLocaleString('ru-RU');
+      document.getElementById('energy').textContent = Math.floor(player.energy);
+      document.getElementById('maxEnergy').textContent = player.maxEnergy;
+      document.getElementById('level').textContent = player.level;
+      document.getElementById('profit').textContent = Math.floor(player.hourlyProfit + player.referralIncome).toLocaleString('ru-RU');
+      document.getElementById('dropCards').textContent = player.dropCards;
+      document.getElementById('perTap').textContent = Math.floor(1 + player.manualLevel * 1.15);
+      document.getElementById('energySpeed').textContent = player.energyRecoverTime.toFixed(1);
+
+      const needed = getClicksNeeded();
+      const percent = needed === Infinity ? 100 : Math.min(100, Math.floor((player.accumulatedClicks / needed) * 100));
+      document.getElementById('clicksCurrent').textContent = player.accumulatedClicks.toLocaleString('ru-RU');
+      document.getElementById('clicksNeeded').textContent = needed === Infinity ? 'MAX' : needed.toLocaleString('ru-RU');
+      document.getElementById('levelProgressFill').style.width = percent + '%';
+
+      redraw();
     }
 
     function getClicksNeeded() {
       if (player.level >= 15) return Infinity;
-      let cost = 12000;
-      const mults = [3.55,3.65,3.8,4.0,4.25,4.55,4.9,5.35,5.9,6.6,7.4,8.3,9.4,10.7];
-      for (let i = 1; i < player.level; i++) cost *= mults[Math.min(i-1, mults.length-1)];
-      return Math.ceil(cost / Math.max(1, player.level * 4.5));
+      const base = 180;
+      return Math.ceil(base * Math.pow(2.85, player.level - 1));
     }
 
     function checkLevelUp() {
       let needed = getClicksNeeded();
-      let leveled = false;
       while (player.accumulatedClicks >= needed && player.level < 15) {
         player.accumulatedClicks -= needed;
         player.level++;
+        tg.showAlert(`LEVEL UP! Теперь уровень ${player.level}`);
         needed = getClicksNeeded();
-        leveled = true;
-      }
-      if (leveled) showLevelUp(player.level);
-    }
-
-    function showLevelUp(newLvl) {
-      document.getElementById('newLevel').textContent = newLvl;
-      const overlay = document.getElementById('levelUpOverlay');
-      overlay.style.display = 'flex';
-      createParticles();
-      setTimeout(() => { overlay.style.display = 'none'; }, 2800);
-    }
-
-    function createParticles() {
-      const cont = document.getElementById('particles');
-      cont.innerHTML = '';
-      for (let i = 0; i < 60; i++) {
-        const p = document.createElement('div');
-        p.style.position = 'absolute';
-        p.style.width = '5px';
-        p.style.height = '5px';
-        p.style.background = `hsl(${Math.random()*60 + 80}, 100%, 55%)`;
-        p.style.left = Math.random()*100 + '%';
-        p.style.top = Math.random()*100 + '%';
-        p.style.opacity = Math.random()*0.7 + 0.3;
-        p.style.animation = `floatParticle ${1 + Math.random()*1.2}s forwards`;
-        cont.appendChild(p);
+        checkAllAchievements();
       }
     }
 
-    // ────────────────────────────────────────────────
-    // Основной тап
-    // ────────────────────────────────────────────────
-    function tap(e) {
-      if (player.energy <= 0) return showFZ115();
-
-      const now = Date.now();
-      if (now - lastTapTime < 60) return;
-      lastTapTime = now;
-
-      if (now - lastTapSecond > 1000) {
-        tapCountThisSecond = 0;
-        lastTapSecond = now;
-      }
-      tapCountThisSecond++;
-      if (tapCountThisSecond > 18) return;
-
-      if (!musicStarted) {
-        document.getElementById('bgMusic').volume = 0.12;
-        document.getElementById('bgMusic').play().catch(()=>{});
-        musicStarted = true;
-      }
-
-      document.getElementById('clickSound').currentTime = 0;
-      document.getElementById('clickSound').volume = 0.25;
-      document.getElementById('clickSound').play().catch(()=>{});
-
-      player.energy = Math.max(0, player.energy - 1);
-      const earn = getTapIncome();
-      player.coins += earn;
-      player.accumulatedClicks++;
-
-      let scale = 1.14;
-      const animate = () => {
-        ctx.save();
-        ctx.translate(190, 180);
-        ctx.scale(scale, scale);
-        ctx.translate(-190, -180);
-        drawCard();
-        ctx.restore();
-        scale -= 0.028;
-        if (scale > 1) requestAnimationFrame(animate);
-      };
-      animate();
-
-      createFloatingText(earn, e.offsetX, e.offsetY);
-      checkLevelUp();
-      updateUI();
-    }
-
-    // ────────────────────────────────────────────────
-    // Остальные функции (магазин, daily, FZ-115 и т.д.)
-    // ────────────────────────────────────────────────
-    function showFZ115() {
-      let html = `<div class="fz">ФЗ-115</div><p style="margin:12px 0;">Счёт заблокирован</p>`;
-      if (player.dropCards > 0) html += `<button onclick="useDropCard()" style="background:#0f0;color:#000;padding:10px 20px;margin:6px;">ДРОП (${player.dropCards})</button>`;
-      html += `<button onclick="restoreEnergy()" style="background:#c00;color:#fff;padding:10px 20px;">СНЯТЬ (1/сутки)</button>`;
-      document.getElementById('modalContent').innerHTML = html;
-      document.getElementById('modal').style.display = "flex";
-    }
-
-    function useDropCard() {
-      if (player.dropCards <= 0) return;
-      player.dropCards--;
-      player.energy = player.maxEnergy;
-      closeModal();
-      updateUI();
-    }
-
-    function restoreEnergy() {
-      alert("В этой версии восстановление энергии 1 раз в сутки (пока без сервера — всегда доступно для теста)");
-      player.energy = player.maxEnergy;
-      closeModal();
-      updateUI();
-    }
-
-    function showShop() {
-      let html = `<h2 style="color:#0f0;margin-bottom:12px;">МАГАЗИН</h2>`;
-      html += `<button onclick="buyUpgrade('tap')" style="width:100%;margin:6px 0;padding:10px;">
-        ТАП + (ур. ${player.tapLevel})<br>
-        <small>Цена: ${(4800 * Math.pow(3.15, player.tapLevel)).toLocaleString()} ₽</small>
-      </button>`;
-      html += `<button onclick="buyUpgrade('p2p')" style="width:100%;margin:6px 0;padding:10px;">
-        П2П +12% к пассиву (ур. ${player.p2pLevel})<br>
-        <small>Цена: ${(500 * Math.pow(2.8, player.p2pLevel)).toLocaleString()} ₽</small>
-      </button>`;
-      html += `<button onclick="closeModal()" style="margin-top:12px;padding:10px 20px;">ЗАКРЫТЬ</button>`;
-      document.getElementById('modalContent').innerHTML = html;
-      document.getElementById('modal').style.display = "flex";
-    }
-
-    function buyUpgrade(key) {
-      let cost = key === 'tap' ? 4800 * Math.pow(3.15, player.tapLevel) : 500 * Math.pow(2.8, player.p2pLevel);
-      cost = Math.floor(cost);
-      if (player.coins < cost) return alert("Мало денег");
-      player.coins -= cost;
-      if (key === 'tap') player.tapLevel++;
-      else player.p2pLevel++;
-      closeModal();
-      updateUI();
-    }
-
-    function showDaily() {
-      const today = new Date().toDateString();
-      if (player.dailyClaimed === today) {
-        document.getElementById('modalContent').innerHTML = `<h2>Сегодня получено</h2><p>Серия: ${player.streak}</p><button onclick="closeModal()" style="padding:10px 20px;">Закрыть</button>`;
-      } else {
-        const reward = 650 * player.streak;
-        document.getElementById('modalContent').innerHTML = `
-          <h2>ЕЖЕДНЕВНЫЙ БОНУС</h2>
-          <p>Серия: ${player.streak}</p>
-          <button onclick="claimDaily()" style="background:#0f0;color:#000;padding:12px 24px;">+${reward.toLocaleString()} ₽</button>`;
-      }
-      document.getElementById('modal').style.display = "flex";
-    }
-
-    function claimDaily() {
-      const reward = 650 * player.streak;
-      player.coins += reward;
-      player.streak++;
-      player.dailyClaimed = new Date().toDateString();
-      closeModal();
-      updateUI();
-    }
-
-    function closeModal() {
-      document.getElementById('modal').style.display = "none";
+    function getDailyBonus(day) {
+      const bonuses = [500, 800, 1200, 1800, 2500, 3500, 5000];
+      if (day <= 7) return bonuses[day - 1] || 500;
+      return 5000 + (day - 7) * 300;
     }
 
     function showMenu(type) {
-      closeModal();
-      if (type === 'shop') showShop();
-      if (type === 'daily') showDaily();
+      if (type === 'shop') return showShop();
+      if (type === 'daily') return showDailyBonus();
+      if (type === 'refs') return showReferrals();
+
+      let header = `<h2 style="color:#0f0;margin:0;">${type.toUpperCase()}</h2>`;
+      let body = '<p style="margin:40px 0;text-align:center;color:#aaa;">Раздел в разработке</p>';
+      let footer = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
+
+      document.getElementById('modalHeader').innerHTML = header;
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = footer;
+      document.getElementById('modal').style.display = 'flex';
     }
 
-    function updateUI() {
-      document.getElementById('coins').textContent = Math.floor(player.coins).toLocaleString();
-      document.getElementById('energy').textContent = Math.floor(player.energy);
-      document.getElementById('maxEnergy').textContent = player.maxEnergy;
-      document.getElementById('level').textContent = player.level;
-      document.getElementById('profit').textContent = getPassivePerHour().toLocaleString();
-      document.getElementById('dropCards').textContent = player.dropCards;
+    function showShop() {
+      let body = '';
+      shopItems.forEach(item => {
+        const lvl = player[`${item.id}Level`] || 0;
+        const max = item.maxLvl;
+        const curr = typeof item.effect === 'function' ? item.effect(lvl) : '—';
+        const next = lvl < max ? item.effect(lvl + 1) : null;
+        const cost = lvl >= max ? 0 : Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
+        const canBuy = lvl < max && player.coins >= cost;
 
-      const needed = getClicksNeeded();
-      const percent = needed === Infinity ? 100 : Math.min(100, Math.floor((player.accumulatedClicks / needed) * 100));
-      document.getElementById('clicksCurrent').textContent = player.accumulatedClicks.toLocaleString();
-      document.getElementById('clicksNeeded').textContent = needed === Infinity ? 'MAX' : needed.toLocaleString();
-      document.getElementById('levelProgressFill').style.width = percent + '%';
+        body += `
+          <div style="border:2px solid ${lvl>=max?'#0f0':'#444'};background:${lvl>=max?'rgba(0,255,0,0.15)':'#111'};padding:12px;margin:10px 0;border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;font-weight:bold;">
+              <span>${item.name}</span>
+              <span style="color:#ff0;">${lvl}/${max}</span>
+            </div>
+            <div style="font-size:11px;color:#aaa;margin:6px 0;">${item.desc}</div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;">
+              <span>Сейчас:</span><span style="color:#0f0;">${curr}${item.id==='energySpeed'?'с':''}${item.id==='p2p'?'₽/ч':''}${item.id==='autoTap'?' тап/5с':''}</span>
+            </div>
+            ${next!==null?`<div style="display:flex;justify-content:space-between;font-size:11px;color:#ff0;">
+              <span>Далее:</span><span>${next}${item.id==='energySpeed'?'с':''}${item.id==='p2p'?'₽/ч':''}${item.id==='autoTap'?' тап/5с':''}</span>
+            </div>`:''}
+            ${lvl < max ? 
+              `<button onclick="buyItem('${item.id}')" ${!canBuy?'disabled':''} style="margin-top:8px;width:100%;padding:10px;background:${canBuy?'#0f0':'#333'};color:${canBuy?'#000':'#666'};border:none;border-radius:6px;">
+                ${canBuy ? `КУПИТЬ (${cost.toLocaleString()} ₽)` : `Недостаточно`}
+              </button>` : 
+              `<div style="margin-top:8px;padding:10px;background:#222;color:#555;text-align:center;border-radius:6px;">МАКСИМУМ</div>`}
+          </div>`;
+      });
 
-      const missing = player.maxEnergy - player.energy;
-      if (missing > 0) {
-        const secLeft = Math.ceil(missing * 3);
-        const min = Math.floor(secLeft / 60);
-        const sec = secLeft % 60;
-        document.getElementById('energyRecover').textContent = `(~${min ? min+'м ' : ''}${sec}с)`;
-      } else {
-        document.getElementById('energyRecover').textContent = '';
-      }
+      document.getElementById('modalHeader').innerHTML = '<h2 style="color:#0f0;margin:0;">МАГАЗИН 🛒</h2>';
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
+      document.getElementById('modal').style.display = 'flex';
     }
 
-    // ────────────────────────────────────────────────
-    // Запуск
-    // ────────────────────────────────────────────────
-    window.addEventListener('load', () => {
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
+    function buyItem(id) {
+      const item = shopItems.find(i => i.id === id);
+      if (!item) return;
+      const lvl = player[`${id}Level`] || 0;
+      if (lvl >= item.maxLvl) return;
+      const cost = Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
+      if (player.coins < cost) {
+        tg.showAlert(`Недостаточно средств! Нужно ${cost.toLocaleString()} ₽`);
+        return;
       }
+      player.coins -= cost;
+      player[`${id}Level`] = lvl + 1;
+
+      if (id === 'energyMax') player.maxEnergy = 800 + (lvl + 1) * 50;
+      if (id === 'energySpeed') player.energyRecoverTime = Math.max(0.4, 3 - (lvl + 1) * 0.26);
+      if (id === 'p2p') player.hourlyProfit += 0.8;
+
+      saveGame();
       updateUI();
-      drawCard();
-      setInterval(() => {
-        // пассивный доход каждую секунду (локально)
-        const now = Date.now();
-        const delta = (now - player.lastOnline) / 1000;
-        player.coins += delta * (getPassivePerHour() / 3600);
-        player.lastOnline = now;
-        // энергия
-        player.energy = Math.min(player.maxEnergy, player.energy + delta / 3);
+      showShop();
+    }
+
+    function showDailyBonus() {
+      const today = new Date().toISOString().split('T')[0];
+      let streak = player.streak || 1;
+      let canClaim = player.lastBonusClaimed !== today;
+
+      if (canClaim) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yStr = yesterday.toISOString().split('T')[0];
+        if (player.lastBonusClaimed === yStr) {
+          streak = (player.streak || 1) + 1;
+        } else if (player.lastBonusClaimed && player.lastBonusClaimed < yStr) {
+          streak = 1;
+        }
+      }
+
+      const bonus = getDailyBonus(streak);
+
+      let body = `
+        <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ЕЖЕДНЕВНЫЙ БОНУС</h2>
+        <div style="text-align:center;">
+          <div style="font-size:18px;color:#0f0;">Стрик: <b>${streak} день</b></div>
+          ${canClaim ?
+            `<div style="font-size:26px;color:#ff0;margin:20px 0;">+${bonus.toLocaleString('ru-RU')} ₽</div>` :
+            `<div style="font-size:16px;color:#aaa;margin:20px 0;">Сегодня уже получено<br>Завтра: +${getDailyBonus(streak+1).toLocaleString('ru-RU')} ₽</div>`
+          }
+        </div>
+        <div style="background:rgba(0,255,0,0.1);border:1px solid #0f0;padding:12px;border-radius:8px;margin:20px 0;">
+          <div style="font-size:12px;margin-bottom:8px;">Прогресс 7-дневки:</div>
+          <div style="height:10px;background:#222;border-radius:5px;overflow:hidden;">
+            <div style="height:100%;width:${Math.min(100, streak/7*100)}%;background:#0f0;"></div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('modalHeader').innerHTML = '';
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = canClaim ?
+        `<button onclick="claimDailyBonus(${streak})" style="width:100%;padding:16px;font-size:16px;background:#0f0;color:#000;border:none;border-radius:8px;">ПОЛУЧИТЬ ${bonus.toLocaleString('ru-RU')} ₽</button>
+         <button onclick="closeModal()" style="width:100%;padding:12px;margin-top:10px;background:#222;border:1px solid #444;color:#0f0;">ЗАКРЫТЬ</button>` :
+        `<button onclick="closeModal()" style="width:100%;padding:16px;background:#222;border:1px solid #444;color:#0f0;">ЗАКРЫТЬ</button>`;
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function claimDailyBonus(streak) {
+      const today = new Date().toISOString().split('T')[0];
+      const bonus = getDailyBonus(streak);
+
+      player.coins += bonus;
+      player.totalCoinsEarned += bonus;
+      player.lastBonusClaimed = today;
+      player.streak = streak;
+
+      saveGame();
+      updateUI();
+
+      const toast = document.getElementById('achievement-toast');
+      toast.innerHTML = `+${bonus.toLocaleString('ru-RU')} ₽<br>Ежедневный бонус!<br>Стрик: ${streak}`;
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 4000);
+
+      showDailyBonus();
+    }
+
+    function showReferrals() {
+      if (!player.referralCode && tg.initDataUnsafe?.user?.id) {
+        player.referralCode = tg.initDataUnsafe.user.id.toString();
+        saveGame();
+      }
+
+      const botUsername = 'YourBotNameHere'; // ← ЗАМЕНИ НА ИМЯ СВОЕГО БОТА
+      const refLink = `https://t.me/${botUsername}?start=${player.referralCode || 'no_id'}`;
+
+      let body = `
+        <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ТИМЛИД / РЕФЕРАЛЫ</h2>
+        
+        <div style="background:rgba(0,255,0,0.1);border:1px solid #0f0;padding:15px;border-radius:8px;margin:15px 0;">
+          <div style="font-size:13px;margin-bottom:10px;">Твоя реф. ссылка:</div>
+          <div style="word-break:break-all;font-size:12px;background:#111;padding:10px;border-radius:6px;color:#0f0;">
+            ${refLink}
+          </div>
+          <button onclick="navigator.clipboard.writeText('${refLink}').then(()=>tg.showAlert('Ссылка скопирована!'))" style="margin-top:10px;width:100%;padding:10px;background:#0f0;color:#000;border:none;border-radius:6px;">
+            СКОПИРОВАТЬ ССЫЛКУ
+          </button>
+        </div>
+
+        <div style="text-align:center;margin:20px 0;">
+          <div style="font-size:18px;color:#0f0;">Приглашено: <b>${player.referrals} чел.</b></div>
+          <div style="font-size:16px;color:#ff0;margin-top:10px;">Доход от рефералов: <b>+${player.referralIncome.toFixed(2)} ₽/ч</b></div>
+        </div>
+
+        <div style="font-size:12px;color:#aaa;text-align:center;margin-top:20px;">
+          0.5% от заработка каждого реферала — твой пассивный доход навсегда
+        </div>
+      `;
+
+      document.getElementById('modalHeader').innerHTML = '';
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function showAchievements() {
+      let body = '<h2 style="color:#0f0;text-align:center;margin-bottom:15px;">ДОСТИЖЕНИЯ 🏆</h2>';
+      achievements.forEach(ach => {
+        const unlocked = player.unlockedAchievements.includes(ach.id);
+        let progress = '';
+        let curr = 0;
+        if (ach.type === 'taps') { curr = player.totalTaps; progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${Math.min(100, curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;text-align:right;">${curr.toLocaleString()} / ${ach.value.toLocaleString()}</div>`; }
+        else if (ach.type === 'level') { curr = player.level; progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${curr>=ach.value?100:Math.floor(curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;">Уровень: ${curr} / ${ach.value}</div>`; }
+        else if (ach.type === 'coins') { curr = Math.floor(player.totalCoinsEarned); progress = `<div style="height:6px;background:#222;border:1px solid #0f0;border-radius:3px;overflow:hidden;margin:6px 0;"><div style="height:100%;width:${Math.min(100, curr/ach.value*100)}%;background:#0f0;"></div></div><div style="font-size:9px;text-align:right;">${curr.toLocaleString()} / ${ach.value.toLocaleString()}</div>`; }
+
+        body += `
+          <div style="border:2px solid ${unlocked?'#0f0':'#444'};background:${unlocked?'rgba(0,255,0,0.15)':'#111'};padding:12px;margin:8px 0;border-radius:8px;">
+            <div style="display:flex;justify-content:space-between;">
+              <span>${unlocked ? '✅' : '🔒'} ${ach.name}</span>
+              <span style="color:#ff0;">+${ach.reward} ₽/ч</span>
+            </div>
+            <div style="font-size:11px;color:#aaa;margin:6px 0;">${ach.desc}</div>
+            ${progress}
+          </div>`;
+      });
+
+      document.getElementById('modalHeader').innerHTML = '';
+      document.getElementById('modalBody').innerHTML = body;
+      document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#111;border:2px solid #444;color:#0f0;">ЗАКРЫТЬ</button>';
+      document.getElementById('modal').style.display = 'flex';
+    }
+
+    function checkAllAchievements() {
+      let anyNew = false;
+      achievements.forEach(ach => {
+        let cond = false;
+        if (ach.type === 'taps') cond = player.totalTaps >= ach.value;
+        if (ach.type === 'level') cond = player.level >= ach.value;
+        if (ach.type === 'coins') cond = player.totalCoinsEarned >= ach.value;
+
+        if (cond && !player.unlockedAchievements.includes(ach.id)) {
+          player.unlockedAchievements.push(ach.id);
+          player.hourlyProfit += ach.reward;
+          const toast = document.getElementById('achievement-toast');
+          toast.innerHTML = `🏆 ${ach.name}<br>+${ach.reward} ₽/ч`;
+          toast.style.display = 'block';
+          setTimeout(() => { toast.style.display = 'none'; }, 4000);
+          anyNew = true;
+        }
+      });
+      if (anyNew) {
         updateUI();
-      }, 1000);
+        saveGame();
+      }
+    }
+
+    function passiveIncome() {
+      const now = Date.now();
+      const delta = (now - lastPassiveTime) / 1000;
+      lastPassiveTime = now;
+
+      // Обычный пассив
+      const totalPassive = player.hourlyProfit + player.referralIncome;
+      if (totalPassive > 0) {
+        const earned = Math.floor(totalPassive * delta / 3600);
+        if (earned > 0) {
+          player.coins += earned;
+          player.totalCoinsEarned += earned;
+          checkAllAchievements();
+        }
+      }
+
+      // Авто-тап
+      if (player.autoTapLevel > 0) {
+        const interval = 5000;
+        const ticks = Math.floor((now - lastAutoTapTime) / interval);
+        if (ticks > 0) {
+          const earn = Math.floor(1 + player.manualLevel * 1.15);
+          const total = ticks * player.autoTapLevel * earn;
+          player.coins += total;
+          player.totalCoinsEarned += total;
+          player.totalTaps += ticks * player.autoTapLevel;
+          lastAutoTapTime += ticks * interval;
+          checkAllAchievements();
+        }
+      }
+
+      updateUI();
+      saveGame();
+    }
+
+    function closeModal() {
+      document.getElementById('modal').style.display = 'none';
+      tg.expand();
+      redraw();
+      updateUI();
+    }
+
+    function saveGame() {
+      try { localStorage.setItem('bankTapSave', JSON.stringify(player)); } catch(e) {}
+    }
+
+    function loadGame() {
+      try {
+        const saved = localStorage.getItem('bankTapSave');
+        if (saved) {
+          const data = JSON.parse(saved);
+          Object.assign(player, data);
+          player.maxEnergy = 800 + (player.energyMaxLevel || 0) * 50;
+          player.energyRecoverTime = Math.max(0.4, 3 - (player.energySpeedLevel || 0) * 0.26);
+        }
+      } catch(e) {}
+    }
+
+    window.addEventListener('load', () => {
+      loadGame();
+
+      // Генерация реферального кода
+      if (!player.referralCode && tg.initDataUnsafe?.user?.id) {
+        player.referralCode = tg.initDataUnsafe.user.id.toString();
+        saveGame();
+      }
+
+      // Проверка, пришёл ли по реферальной ссылке
+      const urlParams = new URLSearchParams(window.location.search);
+      const refFrom = urlParams.get('start');
+      if (refFrom && refFrom !== player.referralCode && !player.referralActivated) {
+        player.coins += 1000;
+        player.referralActivated = true;
+        tg.showAlert('Ты пришёл по реферальной ссылке! +1000 ₽ бонус!');
+        saveGame();
+        updateUI();
+      }
+
+      checkAllAchievements();
+      setTimeout(redraw, 100);
+      setTimeout(updateUI, 150);
+      setInterval(() => {
+        const now = Date.now();
+        if (now - lastEnergyTime >= player.energyRecoverTime * 1000 && player.energy < player.maxEnergy) {
+          player.energy++;
+          lastEnergyTime = now;
+          updateUI();
+          saveGame();
+        }
+      }, 500);
+      setInterval(passiveIncome, 2000);
     });
 
-    canvas.addEventListener('pointerdown', tap);
+    wrapper.addEventListener('pointerdown', tap, { passive: false });
+    wrapper.addEventListener('touchstart', tap, { passive: false });
   </script>
 </body>
 </html>
