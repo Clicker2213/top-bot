@@ -409,14 +409,14 @@
         saveGame();
       }
 
-      const botUsername = 'BANKTAP_BOT'; // ← твой бот здесь (без @, без https://t.me/)
+      const botUsername = 'BANKTAP_BOT'; // ИМЯ ТВОЕГО БОТА БЕЗ @
       const refLink = `https://t.me/${botUsername}?start=${player.referralCode || 'no_id'}`;
 
       let body = `
         <h2 style="color:#ff0;text-align:center;margin-bottom:20px;">ТИМЛИД / РЕФЕРАЛЫ</h2>
         
         <div style="background:rgba(0,255,0,0.1);border:1px solid #0f0;padding:15px;border-radius:8px;margin:15px 0;">
-          <div style="font-size:13px;margin-bottom:10px;">Твоя реф. ссылка:</div>
+          <div style="font-size:13px;margin-bottom:10px;">Твоя реферальная ссылка:</div>
           <div style="word-break:break-all;font-size:12px;background:#111;padding:10px;border-radius:6px;color:#0f0;">
             ${refLink}
           </div>
