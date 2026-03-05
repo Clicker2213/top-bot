@@ -197,7 +197,6 @@
       display:none;
     }
     @keyframes floatUp { to { transform:translateY(-80px) scale(1.2); opacity:0; } }
-
     #level-up-notification {
       position: fixed;
       top: 90px;
@@ -218,7 +217,6 @@
       min-width: 240px;
       border: 2px solid #000;
     }
-
     #level-up-notification.show {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
@@ -226,13 +224,11 @@
   </style>
 </head>
 <body>
-
   <!-- Звуки -->
   <audio id="sound-tap" preload="auto"><source src="audio/tap.mp3" type="audio/mpeg"></audio>
   <audio id="sound-achivka" preload="auto"><source src="audio/achivka.mp3" type="audio/mpeg"></audio>
   <audio id="sound-level" preload="auto"><source src="audio/level.mp3" type="audio/mpeg"></audio>
   <audio id="sound-interface" preload="auto"><source src="audio/interface.mp3" type="audio/mpeg"></audio>
-
   <div id="header">
     <div class="stat-left">
       <div class="stat-box">LVL <span id="level">1</span>/15</div>
@@ -246,7 +242,6 @@
       <div class="stat-box">ДРОП: <span id="dropCards">0</span>/5</div>
     </div>
   </div>
-
   <div id="game-area">
     <div id="card-wrapper">
       <div class="canvas-stack">
@@ -259,7 +254,6 @@
       <div class="level-progress-bar"><div id="levelProgressFill" class="level-progress-fill"></div></div>
     </div>
   </div>
-
   <div class="menu">
     <div class="menu-row">
       <button onclick="showMenu('shop')">МАГАЗИН</button>
@@ -275,7 +269,6 @@
       <button onclick="showAchievements()">ДОСТИЖЕНИЯ 🏆</button>
     </div>
   </div>
-
   <div id="modal" class="modal">
     <div class="modal-inner">
       <div class="modal-header" id="modalHeader"></div>
@@ -283,24 +276,19 @@
       <div class="modal-footer" id="modalFooter"></div>
     </div>
   </div>
-
   <div id="achievement-toast"></div>
   <div id="level-up-notification"></div>
-
   <script>
     const tg = window.Telegram?.WebApp || { ready:()=>{}, expand:()=>{}, showAlert:alert, openLink:(url)=>window.open(url,'_blank') };
     tg.ready();
     tg.expand();
-
     let userInteracted = false;
-
     const sounds = {
       tap: document.getElementById('sound-tap'),
       achivka: document.getElementById('sound-achivka'),
       level: document.getElementById('sound-level'),
       interface: document.getElementById('sound-interface')
     };
-
     function playSound(type) {
       const sound = sounds[type];
       if (!sound) return;
@@ -312,7 +300,6 @@
       if (type === 'interface') sound.volume = 0.55;
       sound.play().catch(() => {});
     }
-
     let player = {
       coins: 0,
       energy: 800,
@@ -341,16 +328,13 @@
       subscriptionBonusPending: false,
       unlockedAchievements: []
     };
-
     let lastTapTime = 0;
     let lastEnergyTime = Date.now();
-
     const frameCanvas = document.getElementById('frame-canvas');
     const frameCtx = frameCanvas.getContext('2d');
     const contentCanvas = document.getElementById('content-canvas');
     const contentCtx = contentCanvas.getContext('2d');
     const wrapper = document.getElementById('card-wrapper');
-
     const banks = [
       {name: "Озн Банк", color: "#003087"},{name: "Р-Банк", color: "#FFDD2D"},{name: "Сквбанк", color: "#003087"},
       {name: "Алфбанк", color: "#EF3124"},{name: "ВБТ", color: "#0033A0"},{name: "Гзпбанк", color: "#003087"},
@@ -358,7 +342,6 @@
       {name: "Рйфбанк", color: "#FFDD2D"},{name: "Рсбанк", color: "#003087"},{name: "Откбанк", color: "#FF6600"},
       {name: "Пчтбанк", color: "#003087"},{name: "Рсстндрт", color: "#808080"},{name: "Сбрбанк", color: "#009246"}
     ];
-
     const shopItems = [
       { id: 'manual', name: 'Увеличивает доход за тап', maxLvl:10, basePrice:300, priceMult:1.72, effect: lvl => Math.floor(1 + lvl * 1.15), desc: 'Доход за 1 тап' },
       { id: 'energyMax', name: 'Увеличивает максимальный запас энергии на 50', maxLvl:8, basePrice:450, priceMult:1.85, effect: lvl => 800 + lvl * 50, desc: 'Макс. энергии' },
@@ -366,7 +349,6 @@
       { id: 'autoTap', name: 'Авто-таппер', maxLvl:1, basePrice:5000, priceMult:1, effect: lvl => lvl ? 'Активен' : '—', desc: 'Авто-тапы каждые 5 сек (даже оффлайн)' },
       { id: 'p2p', name: 'Премиум-карта P2P', maxLvl:12, basePrice:2500, priceMult:1.68, effect: lvl => (lvl * 0.8).toFixed(1), desc: 'Пассивный доход в ₽/час' }
     ];
-
     const blackMarketItems = [
       { id: 'usdt_pack', name: "USDT пачка", basePrice: 48000, priceMult: 2.3, maxLvl: 5, passivePerLevel: 55, desc: "Стабильные USDT" },
       { id: 'btc_miner', name: "BTC майнер", basePrice:135000, priceMult: 2.45, maxLvl: 5, passivePerLevel:145, desc: "Майнинг-бонус" },
@@ -374,7 +356,6 @@
       { id: 'ton_voucher', name: "TON ваучер", basePrice: 62000, priceMult: 2.2, maxLvl: 5, passivePerLevel: 75, desc: "TON-купоны" },
       { id: 'meme_bag', name: "MEME мешок", basePrice: 32000, priceMult: 2.6, maxLvl: 5, passivePerLevel: 40, desc: "Мем-коины" }
     ];
-
     const achievements = [
       { id: 'taps_100', name: 'Новичок', desc: 'Сделай 100 тапов', type: 'taps', value: 100, reward: 3 },
       { id: 'taps_1000', name: 'Активный тапер', desc: 'Сделай 1 000 тапов', type: 'taps', value: 1000, reward: 5 },
@@ -388,10 +369,8 @@
       { id: 'coins_500000', name: 'Миллионер', desc: 'Заработай 500 000 ₽ всего', type: 'coins', value: 500000, reward: 20 },
       { id: 'coins_5000000',name: 'Олигарх', desc: 'Заработай 5 000 000 ₽ всего',type: 'coins', value: 5000000,reward: 35 }
     ];
-
     // ====================== СОХРАНЕНИЕ ПРОГРЕССА ======================
     const CLOUD_KEY = 'bank_tap_progress_v1';
-
     function saveProgress() {
       const data = JSON.stringify(player);
       tg.CloudStorage.setItem(CLOUD_KEY, data, (err, success) => {
@@ -400,7 +379,6 @@
         }
       });
     }
-
     function loadProgress() {
       tg.CloudStorage.getItem(CLOUD_KEY, (err, value) => {
         if (value) {
@@ -418,10 +396,8 @@
         updateUI();
       });
     }
-
     setInterval(saveProgress, 30000);
-
-    // ====================== КАРТОЧКА БАНКА СРАЗУ ======================
+    // ====================== КАРТОЧКА БАНКА ======================
     function drawFrame() {
       frameCtx.clearRect(0, 0, 380, 460);
       frameCtx.strokeStyle = "#00ff9d"; frameCtx.lineWidth = 6; frameCtx.lineJoin = 'round';
@@ -429,7 +405,6 @@
       frameCtx.fillStyle = "#ffffff"; frameCtx.font = "bold 16px 'Press Start 2P'";
       frameCtx.textAlign = "center"; frameCtx.fillText(`LVL ${player.level}`, 190, 85);
     }
-
     function drawContent() {
       contentCtx.clearRect(0, 0, 380, 460);
       const bank = banks[player.level - 1] || {name: "BANK TAP", color: "#00ff9d"};
@@ -446,75 +421,60 @@
       contentCtx.fillStyle = "#00ff9d"; contentCtx.font = "bold 12px 'Press Start 2P'";
       contentCtx.fillText("МИР", 260, 280);
     }
-
     function redraw() { drawFrame(); drawContent(); }
-
     function updateUI() {
       document.getElementById('coins').textContent = Math.floor(player.coins).toLocaleString('ru-RU');
       document.getElementById('energy').textContent = Math.floor(player.energy);
       document.getElementById('maxEnergy').textContent = player.maxEnergy;
       document.getElementById('level').textContent = player.level;
-      
       const passive = player.achievementPassiveBonus + (player.p2pLevel * 0.8) + player.referralIncome + (player.blackMarketPassive || 0);
       document.getElementById('profit').textContent = Math.floor(passive).toLocaleString('ru-RU');
-
       document.getElementById('dropCards').textContent = player.dropCards;
       document.getElementById('perTap').textContent = `+${Math.floor(1 + player.manualLevel * 1.15)} ₽`;
       document.getElementById('energySpeed').textContent = player.energyRecoverTime.toFixed(1);
-
       const needed = getClicksNeeded();
       const percent = needed === Infinity ? 100 : Math.min(100, Math.floor((player.accumulatedClicks / needed) * 100));
       document.getElementById('clicksCurrent').textContent = player.accumulatedClicks.toLocaleString('ru-RU');
       document.getElementById('clicksNeeded').textContent = needed === Infinity ? 'MAX' : needed.toLocaleString('ru-RU');
       document.getElementById('levelProgressFill').style.width = percent + '%';
-
       redraw();
     }
-
     function getClicksNeeded() {
       if (player.level >= 15) return Infinity;
       const base = 180;
       return Math.ceil(base * Math.pow(2.85, player.level - 1));
     }
-
     function tap(e) {
       e.preventDefault(); e.stopPropagation();
       if (player.energy <= 0) return;
       if (Date.now() - lastTapTime < 60) return;
       lastTapTime = Date.now();
-
       playSound('tap');
-
       player.energy = Math.max(0, player.energy - 1);
       const earn = Math.floor(1 + player.manualLevel * 1.15);
       player.coins += earn;
       player.totalCoinsEarned += earn;
       player.accumulatedClicks++;
       player.totalTaps++;
-
       contentCanvas.style.transform = 'scale(1.06) translateY(-6px)';
       setTimeout(() => contentCanvas.style.transform = 'scale(1) translateY(0)', 110);
-
       const rect = wrapper.getBoundingClientRect();
       let cx = e.clientX ?? (e.touches?.[0]?.clientX ?? rect.left + rect.width/2);
       let cy = e.clientY ?? (e.touches?.[0]?.clientY ?? rect.top + rect.height/2);
       const ox = cx - rect.left + Math.random()*40 - 20;
       const oy = cy - rect.top - 30;
       createFloatingText(earn, rect.left + ox, rect.top + oy);
-
       checkLevelUp();
       checkAllAchievements();
       updateUI();
       saveProgress();
     }
-
     function createFloatingText(amount, x, y) {
       const el = document.createElement('div');
       el.className = 'float-text'; el.textContent = `+${amount}`;
       el.style.left = `${x}px`; el.style.top = `${y}px`;
       document.body.appendChild(el); setTimeout(() => el.remove(), 1200);
     }
-
     function showTopNotification(message, type = 'level') {
       const notif = document.getElementById('level-up-notification');
       notif.textContent = message;
@@ -528,10 +488,6 @@
       notif.classList.add('show');
       setTimeout(() => notif.classList.remove('show'), 4000);
     }
-
-    // ====================== ВСЕ ТВОИ ОРИГИНАЛЬНЫЕ ФУНКЦИИ ======================
-    // (я вернул их полностью, как было в твоём коде)
-
     function checkLevelUp() {
       let needed = getClicksNeeded();
       let oldLevel = player.level;
@@ -545,9 +501,9 @@
         showTopNotification(`LEVEL UP! Теперь уровень ${player.level} 🔥`, 'level');
         checkAllAchievements();
         saveProgress();
+        updateUI();
       }
     }
-
     function checkAllAchievements() {
       let newlyUnlocked = [];
       achievements.forEach(ach => {
@@ -571,7 +527,6 @@
         showTopNotification(`Достижение: ${names}!\n+${total} ₽/ч к пассивному доходу`, 'achievement');
       }
     }
-
     function showAchievements() {
       playSound('interface');
       let body = '<h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ДОСТИЖЕНИЯ 🏆</h2>';
@@ -581,7 +536,6 @@
         let currentValue = 0;
         let targetValue = ach.value;
         let progressText = '';
-
         if (ach.type === 'taps') {
           currentValue = player.totalTaps;
           progress = Math.min(100, Math.floor((currentValue / targetValue) * 100));
@@ -595,14 +549,12 @@
           progress = Math.min(100, Math.floor((currentValue / targetValue) * 100));
           progressText = `${Math.floor(currentValue).toLocaleString('ru-RU')} / ${targetValue.toLocaleString('ru-RU')} ₽`;
         }
-
         const barColor = isUnlocked ? '#00ff9d' : (progress >= 100 ? '#ffd700' : '#555');
         const barBg = isUnlocked ? 'rgba(0,255,157,0.3)' : '#0f1a0f';
-
         body += `
-          <div style="border:2px solid ${isUnlocked ? '#00ff9d' : '#444'}; 
-                      background: ${isUnlocked ? 'rgba(0,255,157,0.12)' : '#001a33'}; 
-                      padding:14px 12px; margin:12px 0; border-radius:10px; 
+          <div style="border:2px solid ${isUnlocked ? '#00ff9d' : '#444'};
+                      background: ${isUnlocked ? 'rgba(0,255,157,0.12)' : '#001a33'};
+                      padding:14px 12px; margin:12px 0; border-radius:10px;
                       opacity: ${isUnlocked ? '1' : '0.85'};">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
               <span style="font-weight:bold; font-size:14px; color:${isUnlocked ? '#00ff9d' : '#f0fff0'}">
@@ -631,36 +583,29 @@
             `}
           </div>`;
       });
-
       const footer = '<button onclick="closeModal()" style="width:100%; padding:14px; background:#001a33; border:2px solid #00ff9d; color:#f0f8ff; border-radius:8px; margin-top:12px; font-size:13px;">ЗАКРЫТЬ</button>';
-
       document.getElementById('modalHeader').innerHTML = '';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = footer;
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
-
     function showMenu(type) {
       playSound('interface');
-
       if (type === 'shop') return showShop();
       if (type === 'market') return showBlackMarket();
       if (type === 'daily') return showDailyBonus();
       if (type === 'refs') return showReferrals();
       if (type === 'tasks') return showTasks();
-
       let header = `<h2 style="color:#00ff9d;margin:0;">${type.toUpperCase()}</h2>`;
       let body = '<p style="margin:40px 0;text-align:center;color:#aaa;">Раздел в разработке</p>';
       let footer = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
-
       document.getElementById('modalHeader').innerHTML = header;
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = footer;
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
-
     function closeModal() {
       document.getElementById('modal').style.display = 'none';
       tg.expand();
@@ -668,12 +613,10 @@
       updateUI();
       saveProgress();
     }
-
-    // === МАГАЗИН, ЧЁРНЫЙ РЫНОК, БОНУС, РЕФЕРАЛКА, ЗАДАНИЯ ===
-    // (полностью как в твоём оригинальном коде)
-
+    // ====================== МАГАЗИН ======================
     function showShop() {
       playSound('interface');
+      updateUI();
       let body = '';
       shopItems.forEach(item => {
         const lvl = player[`${item.id}Level`] || 0;
@@ -682,14 +625,12 @@
         const next = lvl < max ? item.effect(lvl + 1) : null;
         const cost = lvl >= max ? 0 : Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
         const canBuy = lvl < max && player.coins >= cost;
-
         let effectText = item.desc;
         if (item.id === 'manual') effectText += `: сейчас +${curr} ₽ за тап`;
         if (item.id === 'energyMax') effectText += `: сейчас ${curr} макс. энергии`;
         if (item.id === 'energySpeed') effectText += `: сейчас 1 ед. за ${curr} сек`;
         if (item.id === 'autoTap') effectText += `: ${curr}`;
         if (item.id === 'p2p') effectText += `: сейчас +${curr} ₽/ч`;
-
         body += `
           <div style="border:2px solid ${lvl>=max?'#00ff9d':'#444'};background:${lvl>=max?'rgba(0,255,157,0.15)':'#001a33'};padding:12px;margin:10px 0;border-radius:8px;">
             <div style="display:flex;justify-content:space-between;font-weight:bold;">
@@ -703,23 +644,46 @@
             ${next!==null?`<div style="display:flex;justify-content:space-between;font-size:11px;color:#ffd700;">
               <span>Далее:</span><span>${next}</span>
             </div>`:''}
-            ${lvl < max ? 
+            ${lvl < max ?
               `<button onclick="buyItem('${item.id}')" ${!canBuy?'disabled':''} style="margin-top:8px;width:100%;padding:12px;background:${canBuy?'#00ff9d':'#444'};color:${canBuy?'#000':'#666'};border:none;border-radius:6px;font-size:13px;">
                 ${canBuy ? `КУПИТЬ ЗА ${cost.toLocaleString()} ₽` : `НЕДОСТАТОЧНО (${cost.toLocaleString()} ₽)`}
-              </button>` : 
+              </button>` :
               `<div style="margin-top:8px;padding:12px;background:#001a33;color:#666;text-align:center;border-radius:6px;font-size:12px;">МАКСИМУМ</div>`}
           </div>`;
       });
-
       document.getElementById('modalHeader').innerHTML = '<h2 style="color:#00ff9d;margin:0;">МАГАЗИН 🛒</h2>';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
-
+    function buyItem(id) {
+      const item = shopItems.find(i => i.id === id);
+      if (!item) return;
+      const lvlKey = `${item.id}Level`;
+      let lvl = player[lvlKey] || 0;
+      if (lvl >= item.maxLvl) return;
+      const cost = Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
+      if (player.coins < cost) {
+        tg.showAlert(`Недостаточно средств!\nНужно: ${cost.toLocaleString()} ₽`);
+        return;
+      }
+      player.coins -= cost;
+      player.totalCoinsEarned += cost;
+      player[lvlKey] = lvl + 1;
+      if (id === 'energyMax') player.maxEnergy = 800 + player[lvlKey] * 50;
+      if (id === 'energySpeed') player.energyRecoverTime = Math.max(0.4, 3 - player[lvlKey] * 0.26);
+      if (id === 'p2p') player.p2pLevel = player[lvlKey];
+      if (id === 'autoTap') player.autoTapPurchased = true;
+      saveProgress();
+      updateUI();
+      closeModal();
+      setTimeout(() => showShop(), 70);
+    }
+    // ====================== ЧЁРНЫЙ РЫНОК ======================
     function showBlackMarket() {
       playSound('interface');
+      updateUI();
       let body = '<p style="text-align:center;color:#ff5555;font-size:11px;margin-bottom:16px;">Внимание: цены завышены, рискуете!</p>';
       blackMarketItems.forEach(item => {
         const lvl = player[`bm_${item.id}`] || 0;
@@ -727,7 +691,6 @@
         const cost = lvl >= max ? 0 : Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
         const canBuy = lvl < max && player.coins >= cost;
         const currentPassive = lvl * item.passivePerLevel;
-
         body += `
           <div style="border:2px solid #ff4444;background:#1a0000;padding:12px;margin:10px 0;border-radius:8px;opacity:0.92;">
             <div style="display:flex;justify-content:space-between;align-items:center;font-weight:bold;color:#ffdd88;">
@@ -752,19 +715,17 @@
             `}
           </div>`;
       });
-
       document.getElementById('modalHeader').innerHTML = '<h2 style="color:#ff5555;margin:0;">ЧЁРНЫЙ РЫНОК ⚠️</h2>';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #ff4444;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
-
     function buyBlackMarketItem(id) {
       const item = blackMarketItems.find(i => i.id === id);
       if (!item) return;
       const lvlKey = `bm_${id}`;
-      const lvl = player[lvlKey] || 0;
+      let lvl = player[lvlKey] || 0;
       if (lvl >= item.maxLvl) return;
       const cost = Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
       if (player.coins < cost) {
@@ -777,52 +738,37 @@
       player.blackMarketPassive = (player.blackMarketPassive || 0) + item.passivePerLevel;
       saveProgress();
       updateUI();
-      showBlackMarket();
-      tg.showAlert(`+${item.passivePerLevel} ₽/ч к пассиву (уровень ${lvl + 1})`);
+      closeModal();
+      setTimeout(() => showBlackMarket(), 70);
     }
-
-    function buyItem(id) {
-      const item = shopItems.find(i => i.id === id);
-      if (!item) return;
-      const lvl = player[`${id}Level`] || 0;
-      if (lvl >= item.maxLvl) return;
-      const cost = Math.floor(item.basePrice * Math.pow(item.priceMult, lvl));
-      if (player.coins < cost) {
-        tg.showAlert(`Недостаточно средств!\nНужно: ${cost.toLocaleString()} ₽`);
-        return;
-      }
-      player.coins -= cost;
-      player.totalCoinsEarned += cost;
-      player[`${id}Level`] = lvl + 1;
-
-      if (id === 'energyMax') player.maxEnergy = 800 + (lvl + 1) * 50;
-      if (id === 'energySpeed') player.energyRecoverTime = Math.max(0.4, 3 - (lvl + 1) * 0.26);
-      if (id === 'p2p') player.p2pLevel = lvl + 1;
-      if (id === 'autoTap') player.autoTapPurchased = true;
-
-      saveProgress();
-      updateUI();
-      showShop();
-    }
-
+    // ====================== БОНУС (ИСПРАВЛЕНО — ТЕПЕРЬ ОТКРЫВАЕТСЯ) ======================
     function showDailyBonus() {
       playSound('interface');
+      updateUI();
+
       const today = new Date().toISOString().split('T')[0];
-      let streak = player.streak || 1;
-      let canClaim = player.lastBonusClaimed !== today;
-      if (canClaim) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yStr = yesterday.toISOString().split('T')[0];
-        if (player.lastBonusClaimed === yStr) streak = (player.streak || 1) + 1;
-        else if (player.lastBonusClaimed && player.lastBonusClaimed < yStr) streak = 1;
+      let streak = Math.max(1, player.streak || 1);
+      let canClaim = true;
+
+      if (player.lastBonusClaimed === today) {
+        canClaim = false;
+      } else {
+        const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+        if (player.lastBonusClaimed === yesterdayStr) {
+          streak = streak + 1;
+        } else {
+          streak = 1;
+        }
       }
-      const bonus = getDailyBonus(streak);
+
+      const currentBonus = getDailyBonus(streak);
+
       let body = `
         <h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ЕЖЕДНЕВНЫЙ БОНУС</h2>
         <div style="text-align:center;">
           <div style="font-size:18px;color:#f0f8ff;">Стрик: <b>${streak} день</b></div>
-          ${canClaim ? `<div style="font-size:26px;color:#ffd700;margin:20px 0;">+${bonus.toLocaleString('ru-RU')} ₽</div>` :
+          ${canClaim ? 
+            `<div style="font-size:26px;color:#ffd700;margin:20px 0;">+${currentBonus.toLocaleString('ru-RU')} ₽</div>` : 
             `<div style="font-size:16px;color:#aaa;margin:20px 0;">Сегодня уже получено<br>Завтра: +${getDailyBonus(streak+1).toLocaleString('ru-RU')} ₽</div>`}
         </div>
         <div style="background:rgba(0,255,157,0.1);border:1px solid #00ff9d;padding:12px;border-radius:8px;margin:20px 0;">
@@ -832,12 +778,14 @@
           </div>
         </div>
       `;
+
       document.getElementById('modalHeader').innerHTML = '';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = canClaim ?
-        `<button onclick="claimDailyBonus(${streak})" style="width:100%;padding:16px;font-size:16px;background:#00ff9d;color:#000;border:none;border-radius:8px;">ПОЛУЧИТЬ ${bonus.toLocaleString('ru-RU')} ₽</button>
+        `<button onclick="claimDailyBonus(${streak})" style="width:100%;padding:16px;font-size:16px;background:#00ff9d;color:#000;border:none;border-radius:8px;">ПОЛУЧИТЬ ${currentBonus.toLocaleString('ru-RU')} ₽</button>
          <button onclick="closeModal()" style="width:100%;padding:12px;margin-top:10px;background:#001a33;border:1px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>` :
         `<button onclick="closeModal()" style="width:100%;padding:16px;background:#001a33;border:1px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>`;
+
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
@@ -845,17 +793,22 @@
     function claimDailyBonus(streak) {
       const today = new Date().toISOString().split('T')[0];
       const bonus = getDailyBonus(streak);
+
       player.coins += bonus;
       player.totalCoinsEarned += bonus;
       player.lastBonusClaimed = today;
       player.streak = streak;
+
       saveProgress();
       updateUI();
       checkAllAchievements();
+
       const toast = document.getElementById('achievement-toast');
       toast.innerHTML = `+${bonus.toLocaleString('ru-RU')} ₽<br>Ежедневный бонус!<br>Стрик: ${streak}`;
       toast.style.display = 'block';
       setTimeout(() => { toast.style.display = 'none'; }, 4000);
+
+      // Обновляем вкладку сразу (без закрытия — теперь всегда работает)
       showDailyBonus();
     }
 
@@ -863,9 +816,10 @@
       const bonuses = [500, 800, 1200, 1800, 2500, 3500, 5000];
       return bonuses[Math.min(streak - 1, bonuses.length - 1)] || 500;
     }
-
+    // ====================== РЕФЕРАЛЫ ======================
     function showReferrals() {
       playSound('interface');
+      updateUI();
       if (!player.referralCode && tg.initDataUnsafe?.user?.id) {
         player.referralCode = tg.initDataUnsafe.user.id.toString();
         saveProgress();
@@ -873,7 +827,6 @@
       const botUsername = 'BANKTAP_BOT';
       const miniAppName = 'banktaps';
       const refLink = `https://t.me/${botUsername}/${miniAppName}?start=${player.referralCode || 'no_id'}`;
-
       let body = `
         <h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ТИМЛИД / РЕФЕРАЛЫ</h2>
         <div style="background:rgba(0,255,157,0.1);border:1px solid #00ff9d;padding:15px;border-radius:8px;margin:15px 0;">
@@ -893,20 +846,19 @@
           0.5% от заработка каждого реферала — твой пассивный доход навсегда
         </div>
       `;
-
       document.getElementById('modalHeader').innerHTML = '';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
-
+    // ====================== ЗАДАНИЯ ======================
     function showTasks() {
       playSound('interface');
+      updateUI();
       const channelLink = "https://t.me/+RZ2c18IOJrA1YzQy";
       const bonusAmount = 500;
       const alreadyPending = player.subscriptionBonusPending;
-
       let body = `
         <h2 style="color:#00ff9d;text-align:center;margin-bottom:20px;">ЗАДАНИЯ</h2>
         <div style="background:rgba(0,255,157,0.1);border:1px solid #00ff9d;padding:16px;border-radius:10px;margin-bottom:20px;">
@@ -915,7 +867,7 @@
             Подпишитесь на канал и получите <b>+${bonusAmount} ₽</b><br>
             <small style="color:#aaa;">Начисление через 24 часа после проверки</small>
           </div>
-          ${alreadyPending ? 
+          ${alreadyPending ?
             `<div style="text-align:center;color:#ffdd00;font-size:14px;margin:16px 0;">
               Запрос отправлен!<br>Бонус будет начислен через ~24 часа (если подписка активна)
             </div>` :
@@ -926,14 +878,12 @@
         </div>
         <p style="text-align:center;color:#aaa;font-size:11px;">Другие задания — скоро</p>
       `;
-
       document.getElementById('modalHeader').innerHTML = '<h2 style="color:#00ff9d;margin:0;">ЗАДАНИЯ 📋</h2>';
       document.getElementById('modalBody').innerHTML = body;
       document.getElementById('modalFooter').innerHTML = '<button onclick="closeModal()" style="width:100%;padding:14px;background:#001a33;border:2px solid #00ff9d;color:#f0f8ff;">ЗАКРЫТЬ</button>';
       document.getElementById('modal').style.display = 'flex';
       redraw();
     }
-
     function claimSubscriptionBonus() {
       if (player.subscriptionBonusPending) {
         tg.showAlert("Запрос уже отправлен! Бонус придёт через ~24 часа.");
@@ -946,26 +896,26 @@
       saveProgress();
       showTasks();
     }
-
-    function closeModal() {
-      document.getElementById('modal').style.display = 'none';
-      tg.expand();
-      redraw();
-      updateUI();
-      saveProgress();
-    }
-
+    // ====================== ЭНЕРГИЯ ======================
+    setInterval(() => {
+      const now = Date.now();
+      const timePassed = now - lastEnergyTime;
+      const recoverInterval = player.energyRecoverTime * 1000;
+      if (timePassed >= recoverInterval && player.energy < player.maxEnergy) {
+        player.energy = Math.min(player.maxEnergy, player.energy + 1);
+        lastEnergyTime = now;
+        updateUI();
+        saveProgress();
+      }
+    }, 500);
     // ====================== ЗАПУСК ======================
     window.addEventListener('load', () => {
       redraw();
       updateUI();
       loadProgress();
     });
-
     wrapper.addEventListener('pointerdown', tap, { passive: false });
     wrapper.addEventListener('touchstart', tap, { passive: false });
   </script>
 </body>
 </html>
-
-
